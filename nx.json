@@ -101,6 +101,5 @@
       "buildable": true,
       "strict": true
     }
-  },
-  "defaultProject": "node-logger"
+  }
 }

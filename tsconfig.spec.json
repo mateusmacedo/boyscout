@@ -1,9 +1,11 @@
 {
-  "extends": "./tsconfig.base.json",
+  "extends": "./libs/tsconfig/base.json",
   "compilerOptions": {
     "outDir": "./out-tsc/jest",
     "types": ["jest", "node"],
     "forceConsistentCasingInFileNames": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "target": "es2020",
@@ -11,17 +13,7 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
-    "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "noImplicitThis": true,
-    "useUnknownInCatchVariables": true,
-    "exactOptionalPropertyTypes": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noUncheckedIndexedAccess": true
+    "strict": true
   },
   "include": [
     "jest.setup.ts",
@@ -33,5 +25,5 @@
     "apps/**/src/**/*.test.ts",
     "apps/**/src/**/*.spec.ts"
   ],
-  "exclude": ["node_modules", "dist", "coverage", "**/*.d.ts"]
+  "exclude": ["node_modules", "dist", "coverage"]
 }
