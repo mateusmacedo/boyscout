@@ -4,8 +4,6 @@ Esse pacote é responsável por padronizar os logs de uma aplicação através d
 
 ## Instalação
 
-Por ser um pacote interno, você precisa estar logado no gerenciador de pacotes da **boyscout** para instalar o pacote. Usamos o *Github Packages* para gerenciar os pacotes internos. Leia a [documentação](https://docs.github.com/pt/packages/working-with-a-github-packages-registry/working-with-the-npm-registry) para mais informações.
-
 Para instalar o pacote, execute o comando abaixo:
 
 ```bash

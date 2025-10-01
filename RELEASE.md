@@ -114,7 +114,7 @@ nx release version --projects=lib1 --specifier=minor --dry-run
 nx release changelog --from=v1.0.0 --to=HEAD
 
 # Publicação com configurações específicas
-nx release publish --registry=https://npm.pkg.github.com
+nx release publish
 ```
 
 ## 📚 Recursos

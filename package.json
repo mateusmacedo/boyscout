@@ -36,7 +36,6 @@
     "release:dry-run": "nx release --dry-run",
     "version": "nx release version",
     "changelog": "nx release changelog",
-    "publish": "nx release publish",
     "version:project": "nx release version --projects",
     "changelog:project": "nx release changelog --projects",
     "version:all": "nx release version --projects=*",
@@ -44,8 +43,7 @@
     "local-registry": "nx local-registry",
     "local-registry:start": "nx local-registry --start",
     "local-registry:stop": "nx local-registry --stop",
-    "auth:github-packages": "./scripts/auth-github-packages.sh",
-    "publish:github": "nx release publish --registry=https://npm.pkg.github.com"
+    "publish": "nx release publish"
   },
   "private": false,
   "config": {

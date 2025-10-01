@@ -1,12 +1,72 @@
-# Org
+# @boyscout/source
 
 <a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+✨ **Boyscout Workspace** - Monorepo com packages reutilizáveis para projetos modernos ✨.
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/js?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+Workspace Nx com bibliotecas padronizadas para desenvolvimento JavaScript/TypeScript, incluindo configurações de linting, formatação, logging e TypeScript.
 
-## Generate a library
+## 📦 Packages Disponíveis
+
+### @boyscout/biome
+Configuração padronizada do Biome para linting e formatação de projetos JavaScript/TypeScript.
+
+```bash
+pnpm add -D @boyscout/biome
+```
+
+### @boyscout/node-logger
+Biblioteca de logging estruturado com decorators automáticos, correlação de requisições e redação de dados sensíveis.
+
+```bash
+pnpm add @boyscout/node-logger
+```
+
+### @boyscout/tsconfig
+Configurações TypeScript padronizadas para projetos Node.js modernos.
+
+```bash
+pnpm add -D @boyscout/tsconfig
+```
+
+## 🚀 Desenvolvimento
+
+### Comandos Principais
+
+```bash
+# Instalar dependências
+pnpm install
+
+# Executar linting e formatação
+pnpm run check:fix
+
+# Executar testes
+pnpm run test
+
+# Build de todos os packages
+pnpm run build
+
+# Visualizar grafo de dependências
+pnpm run graph
+```
+
+### Release e Versionamento
+
+```bash
+# Release completo (versionamento + changelog + publicação)
+pnpm run release
+
+# Apenas versionamento
+pnpm run version
+
+# Apenas changelog
+pnpm run changelog
+
+# Apenas publicação
+pnpm run publish
+```
+
+## 📋 Generate a library
 
 ```sh
 npx nx g @nx/js:lib packages/pkg1 --publishable --importPath=@my-org/pkg1
@@ -40,7 +100,7 @@ npx nx release
 
 Pass `--dry-run` to see what would happen without actually releasing the library.
 
-[Learn more about Nx release &raquo;](hhttps://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+[Learn more about Nx release &raquo;](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
 
 ## Keep TypeScript project references up to date
 
