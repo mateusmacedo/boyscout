@@ -55,8 +55,14 @@
     "@biomejs/biome": "^2.2.4",
     "@commitlint/cli": "^20.1.0",
     "@commitlint/config-conventional": "^20.0.0",
+    "@nestjs/schematics": "^10.0.1",
+    "@nestjs/testing": "^10.0.2",
     "@nx/jest": "20.8.2",
     "@nx/js": "20.8.2",
+    "@nx/nest": "20.8.2",
+    "@nx/node": "20.8.2",
+    "@nx/web": "20.8.2",
+    "@nx/webpack": "20.8.2",
     "@swc-node/register": "~1.9.1",
     "@swc/core": "~1.5.7",
     "@swc/helpers": "~0.5.11",
@@ -73,9 +79,9 @@
     "ts-node": "10.9.1",
     "tslib": "^2.3.0",
     "typescript": "~5.7.2",
-    "verdaccio": "^6.0.5"
+    "verdaccio": "^6.0.5",
+    "webpack-cli": "^5.1.4"
   },
-  "dependencies": {},
   "nx": {
     "includedScripts": [],
     "targets": {
@@ -88,5 +94,12 @@
         }
       }
     }
+  },
+  "dependencies": {
+    "@nestjs/common": "^10.0.2",
+    "@nestjs/core": "^10.0.2",
+    "@nestjs/platform-express": "^10.0.2",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^7.8.0"
   }
 }

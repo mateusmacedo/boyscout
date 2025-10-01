@@ -36,8 +36,6 @@ const jestConfig = {
   cacheDirectory: '<rootDir>/.jest-cache',
   // Transform ignore patterns for ESM modules
   transformIgnorePatterns: ['node_modules/(?!(pino|@elastic/ecs-pino-format)/)'],
-  // Setup files
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
 };
 
 module.exports = jestConfig;
