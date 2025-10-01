@@ -60,8 +60,6 @@ const asLevel = (lvl: string | undefined): LevelName => {
 };
 
 export function createPinoSink(opts: PinoSinkOptions = {}) {
-  const _base = { service: opts.service, env: opts.env, version: opts.version };
-
   // Create a mock logger if pino is not available
   const createMockLogger = (): PinoLogger => ({
     child: () => createMockLogger(),
