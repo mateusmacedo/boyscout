@@ -1,75 +1,72 @@
 # NestJS API com @boyscout/node-logger
 
-Integração seguindo padrões ADR/RFC da lib `@boyscout/node-logger` no NestJS.
+API NestJS demonstrando integração completa com a biblioteca `@boyscout/node-logger`, implementando recursos complementares para observabilidade e monitoramento.
 
-## Estrutura da Integração
-
-### Componentes Nativos da Lib (conforme ADR)
-- ✅ `@Log` decorator - usado diretamente da lib
-- ✅ `CorrelationIdMiddleware` - middleware nativo para correlação de requisições
-- ✅ `getCid()` - função nativa para obter correlation ID
-- ✅ `defaultRedactor` - redator nativo para dados sensíveis (CPF, CNPJ, senhas)
-- ✅ `createPinoSink()` - sink nativo do Pino
-
-### Configuração Global (conforme RFC)
-- 🔧 **Metadados da aplicação** - service, env, version via Pino sink
-- 🔧 **Correlation ID** - rastreamento automático via AsyncLocalStorage
-- 🔧 **Redação automática** - dados sensíveis via defaultRedactor da lib
-
-## Uso
-
-### Decorators Seguindo Padrões ADR/RFC
-```typescript
-import { GlobalLog, GlobalLogError, GlobalLogPerformance } from '../decorators/global-log.decorator';
-
-// Padrão: level='info', includeArgs=true, includeResult=false, sampleRate=1
-@GlobalLog()
-getData() {
-  return { message: 'Hello' };
-}
-
-// Erro: level='error', includeResult=true
-@GlobalLogError()
-async handleError() {
-  throw new Error('Something went wrong');
-}
-
-// Performance: sampleRate=0.1 (conforme RFC)
-@GlobalLogPerformance()
-async heavyOperation() {
-  // Operação pesada
-}
-```
-
-### Middleware de Correlação (conforme ADR)
-```typescript
-// Configurado no AppModule - propaga x-correlation-id
-consumer
-  .apply(CorrelationIdMiddleware)
-  .forRoutes('*');
-```
-
-## Endpoints da API
-
-- `GET /api` - Dados básicos
-- `GET /api/async` - Operação assíncrona
-- `GET /api/error` - Simulação de erro
-- `POST /api/user` - Processamento de dados sensíveis
-
-## Logs Estruturados (conforme ADR)
-
-Todos os logs incluem automaticamente:
-- **Correlation ID** - rastreamento de requisições via AsyncLocalStorage
-- **Scope** - className e methodName
-- **Outcome** - success/failure
-- **Duration** - tempo de execução em ms
-- **Dados sensíveis redatados** - CPF, CNPJ, senhas, tokens (via defaultRedactor)
-- **Metadados da aplicação** - service, env, version
-
-## Executar
+## 🚀 Início Rápido
 
 ```bash
-pnpm nx serve nestjs-api
+# Instalar dependências
+pnpm install
+
+# Desenvolvimento
+pnpm run start:dev
+
+# Produção
+pnpm run start:prod
+
+# Testes E2E
+pnpm run test:e2e
 ```
 
-A aplicação estará disponível em `http://localhost:3000/api`
+## 📋 Funcionalidades
+
+- **Middleware de Correlação**: Rastreamento automático de requisições
+- **Decorators de Logging**: `@Log` com diferentes níveis e configurações
+- **Redação Automática**: Proteção de dados sensíveis
+- **Health Checks**: Monitoramento de sistema e performance
+- **Analytics**: Tracking de eventos e métricas
+- **Monitoring**: Logs customizados por contexto
+
+## 🛠️ Endpoints
+
+| Módulo | Endpoints | Descrição |
+|--------|-----------|-----------|
+| **App** | `GET /api`, `POST /api/user`, `POST /api/complex` | Endpoints básicos com logging |
+| **Users** | `GET/POST/PUT/DELETE /api/users/*` | CRUD completo de usuários |
+| **Analytics** | `POST /api/analytics/track`, `GET /api/analytics/metrics` | Tracking e métricas |
+| **Health** | `GET /api/health`, `GET /api/health/metrics` | Health checks e monitoramento |
+| **Monitoring** | `POST /api/monitoring/*`, `GET /api/monitoring/summary` | Logs customizados |
+
+## 🔧 Configuração
+
+### Variáveis de Ambiente
+
+```bash
+NODE_ENV=development
+PORT=3000
+SERVICE_NAME=nestjs-api
+SERVICE_VERSION=1.0.0
+```
+
+### Scripts Disponíveis
+
+```bash
+pnpm run start:dev     # Desenvolvimento
+pnpm run start:prod    # Produção
+pnpm run build         # Build
+pnpm run test          # Testes unitários
+pnpm run test:e2e      # Testes E2E
+pnpm run test:e2e:ui   # Interface gráfica dos testes
+```
+
+## 📚 Documentação Detalhada
+
+- **[Testes E2E](./e2e/README.md)** - Guia completo de testes end-to-end
+- **[Boas Práticas](./e2e/BEST_PRACTICES.md)** - Diretrizes para testes de qualidade
+- **[Scripts](./scripts/README.md)** - Comandos e automações disponíveis
+
+## 🔗 Links Úteis
+
+- [@boyscout/node-logger](../libs/node-logger/README.md) - Biblioteca principal
+- [Documentação NestJS](https://docs.nestjs.com/) - Framework oficial
+- [Playwright](https://playwright.dev/) - Framework de testes E2E
