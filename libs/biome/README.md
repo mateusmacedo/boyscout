@@ -1,51 +1,142 @@
-# Biome
+# @boyscout/biome
 
-O Biome é um projeto recente, ele nasceu com o intuito de ser uma reescrita do Prettier em Rust. Ele se diz 35x mais rápido que o Prettier e tem a mesma saída. Além do formatador, o Biome também tem um linter embutido.
+> **Preset de configuração Biome para projetos modernos JavaScript/TypeScript**
 
-#### Instalação
+Esta biblioteca fornece uma configuração padronizada do [Biome](https://biomejs.dev/) otimizada para projetos modernos JavaScript/TypeScript, incluindo suporte completo para React, Node.js e ambientes de teste.
 
-Para instalar o Biome com o npm, rode:
+## 🚀 Características
+
+- **Performance**: 35x mais rápido que o Prettier
+- **All-in-one**: Linter e formatter em uma única ferramenta
+- **Configuração otimizada**: Regras balanceadas entre rigor e produtividade
+- **Suporte completo**: JavaScript, TypeScript, JSX, TSX e JSON
+- **Integração VCS**: Configuração automática com Git
+
+## 📦 Instalação
 
 ```bash
-npm install --save-dev --save-exact @biomejs/biome
+# Via npm
+npm install --save-dev @boyscout/biome
+
+# Via pnpm
+pnpm add -D @boyscout/biome
+
+# Via yarn
+yarn add -D @boyscout/biome
 ```
 
-#### Configuração
+## ⚙️ Configuração
 
-O Biome pode ser configurado usando um arquivo `biome.json` na raiz do seu projeto. Aqui está um exemplo de um arquivo de configuração simples:
+### Uso Básico
+
+Crie um arquivo `biome.json` na raiz do seu projeto:
 
 ```json
 {
-  "$schema": "https://biomejs.dev/schemas/2.2.4/schema.json",
-  "organizeImports": {
-    "enabled": false
-  },
+  "extends": ["@boyscout/biome"]
+}
+```
+
+### Configuração Avançada
+
+```json
+{
+  "extends": ["@boyscout/biome"],
   "linter": {
-    "enabled": true,
     "rules": {
-      "recommended": true
+      "style": {
+        "useConst": "off"
+      }
     }
+  },
+  "formatter": {
+    "lineWidth": 120
   }
 }
 ```
 
-#### Formatação
+## 🎯 Regras Configuradas
 
-Depois de instalar e configurar o Biome, você pode executá-lo em seu código usando o seguinte comando:
+### Linter Rules
+
+#### Correctness
+- `noUnusedVariables`: error
+- `noUnusedImports`: error  
+- `noUndeclaredVariables`: error
+- `noUnusedFunctionParameters`: warn
+
+#### Suspicious
+- `useAwait`: warn
+- `noExplicitAny`: warn
+- `noArrayIndexKey`: warn
+
+#### Style
+- `useImportType`: warn
+- `noNonNullAssertion`: warn
+- `useNodejsImportProtocol`: warn
+- `useConst`: error
+
+#### Complexity
+- `useArrowFunction`: warn
+- `noForEach`: warn
+
+#### Performance
+- `noDelete`: warn
+
+### Formatter
+
+- **Indentação**: 2 espaços
+- **Largura da linha**: 100 caracteres
+- **Aspas**: Single quotes para JS, double quotes para JSX
+- **Semicolons**: Sempre
+- **Trailing commas**: ES5 style
+- **Bracket spacing**: Habilitado
+
+## 🛠️ Comandos Úteis
 
 ```bash
-npx @biomejs/biome format <files> --write
+# Verificar problemas
+npx biome check .
+
+# Corrigir automaticamente
+npx biome check --write .
+
+# Apenas formatação
+npx biome format --write .
+
+# Apenas linting
+npx biome lint --write .
 ```
 
-Isso formatará todos os arquivos no diretório atual de acordo com as regras definidas no arquivo `biome.json`.
+## 🔧 Integração com Workspace
 
-#### Linting
+Este preset é parte do workspace **@boyscout/source** e está otimizado para:
 
-Depois de instalar e configurar o Biome, você pode executá-lo em seu código usando o seguinte comando:
+- **Monorepos Nx**: Configuração automática para projetos Nx
+- **TypeScript**: Suporte completo para decorators e features avançadas
+- **Testing**: Globals configurados para Jest/Vitest
+- **Git**: Integração automática com `.gitignore`
 
-```bash
-npx @biomejs/biome lint <files>
-```
+## 📋 Requisitos
 
-Isso executará o Biome em todos os arquivos no diretório atual e exibirá quaisquer problemas que encontrar.
-// Test change
+- Node.js >= 18.0.0
+- Biome >= 2.2.4
+
+## 🤝 Contribuição
+
+Este preset é mantido como parte do workspace Boyscout. Para contribuir:
+
+1. Faça suas alterações na configuração
+2. Teste com `pnpm test`
+3. Execute `pnpm lint` para verificar formatação
+4. Submeta um PR
+
+## 📄 Licença
+
+MIT © [Mateus Macedo Dos Anjos](mailto:macedodosanjosmateus@gmail.com)
+
+## 🔗 Links
+
+- [Biome Documentation](https://biomejs.dev/)
+- [Boyscout Workspace](https://github.com/mmanjos/boyscout)
+- [NPM Package](https://www.npmjs.com/package/@boyscout/biome)
