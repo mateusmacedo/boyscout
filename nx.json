@@ -1,0 +1,45 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "namedInputs": {
+    "default": ["{projectRoot}/**/*", "sharedGlobals"],
+    "production": ["default"],
+    "sharedGlobals": []
+  },
+  "plugins": [
+    {
+      "plugin": "@nx/js/typescript",
+      "options": {
+        "typecheck": {
+          "targetName": "typecheck"
+        },
+        "build": {
+          "targetName": "build",
+          "configName": "tsconfig.lib.json",
+          "buildDepsName": "build-deps",
+          "watchDepsName": "watch-deps"
+        }
+      }
+    }
+  ],
+  "release": {
+    "projects": ["*"],
+    "projectsRelationship": "independent",
+    "version": {
+      "generator": "@nx/js:release-version",
+      "generatorOptions": {
+        "packageRoot": "{projectRoot}",
+        "currentVersionResolver": "git-tag",
+        "fallbackCurrentVersionResolver": "disk",
+        "specifierSource": "conventional-commits"
+      }
+    },
+    "changelog": {
+      "workspaceChangelog": {
+        "file": "{workspaceRoot}/CHANGELOG.md"
+      },
+      "projectChangelogs": {
+        "file": "{projectRoot}/CHANGELOG.md"
+      }
+    }
+  }
+}
