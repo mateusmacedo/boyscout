@@ -14,13 +14,16 @@ pnpm add @boyscout/node-logger
 
 - **Decorators automáticos**: Logging automático de métodos com rastreamento de performance
 - **Correlação de requisições**: Sistema de correlation ID para rastreamento de requisições
-- **Redação de dados sensíveis**: Redação automática de senhas, tokens e dados pessoais
+- **Redação de dados sensíveis**: Redação automática de senhas, tokens e dados pessoais com padrões avançados
 - **Integração com Pino**: Sink padrão para logs estruturados com configurações otimizadas
 - **Suporte a Express e Fastify**: Middlewares e plugins para correlação de requisições
 - **TypeScript**: Tipagem completa para melhor experiência de desenvolvimento
 - **Otimizações de Performance**: Buffer inteligente e backpressure para picos de logs
 - **Graceful Shutdown**: Limpeza automática de buffers e flush de logs no encerramento
 - **Fallback Inteligente**: Funciona mesmo sem Pino instalado (modo mock)
+- **Redação Avançada**: Suporte a referências circulares, tipos especiais e composição de redatores
+- **Amostragem Segura**: Uso de criptografia para geração de números aleatórios
+- **Detecção de Tipos Especiais**: Tratamento automático de Streams, Buffers, Date e RegExp
 
 ## Utilização
 
@@ -44,6 +47,46 @@ class UserService {
 }
 ```
 
+### Redação Avançada de Dados Sensíveis
+
+A biblioteca oferece um sistema robusto de redação com suporte a padrões avançados:
+
+```typescript
+import { Log, createRedactor, composeRedactors } from '@boyscout/node-logger';
+
+// Redator personalizado com opções avançadas
+const customRedactor = createRedactor({
+  keys: ['password', 'token', 'secret', 'apiKey'],
+  patterns: [
+    /\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b/gi, // CPF
+    /\b\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2}\b/gi, // CNPJ
+    /\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}\b/gi, // Email
+  ],
+  mask: '***',
+  keepLengths: false, // Ocultar comprimento das strings
+  maxDepth: 5, // Limite de profundidade
+  redactArrayIndices: true, // Redatar índices de array sensíveis
+});
+
+// Composição de múltiplos redatores
+const compositeRedactor = composeRedactors(
+  customRedactor,
+  createRedactor({ keys: ['internal'] })
+);
+
+class UserService {
+  @Log({
+    redact: compositeRedactor,
+    includeArgs: true,
+    includeResult: false
+  })
+  async createUser(userData: any) {
+    // Método com redação avançada
+    return await this.userRepository.create(userData);
+  }
+}
+```
+
 ### Configuração Avançada
 
 Por padrão, o decorator `@Log` usa o sink do Pino com configurações otimizadas. Para configurações mais avançadas, você pode personalizar o sink do Pino e redatores:
@@ -55,7 +98,11 @@ import { Log, createPinoSink, createRedactor, getCid } from '@boyscout/node-logg
 const customPinoSink = createPinoSink({
     service: "minha-aplicacao",
     env: "production",
-    version: "1.0.0"
+    version: "1.0.0",
+    // Configurações de buffer para alta performance
+    enableBackpressure: true,
+    bufferSize: 2000,
+    flushInterval: 3000
 });
 
 // Configurar o redator para dados sensíveis
@@ -122,6 +169,111 @@ const customRedactor = createRedactor({
     keepLengths: false, // Manter comprimento original
     redactArrayIndices: true // Redação de índices de array
 });
+```
+
+### Sistema de Buffer Inteligente
+
+A biblioteca implementa um sistema de buffer inteligente para otimizar performance em cenários de alta carga:
+
+```typescript
+import { createPinoSink } from '@boyscout/node-logger';
+
+// Configuração otimizada para alta performance
+const highPerformanceSink = createPinoSink({
+  enableBackpressure: true, // Habilita buffer inteligente
+  bufferSize: 5000,         // Tamanho do buffer
+  flushInterval: 2000,      // Intervalo de flush (ms)
+  service: 'api-service',
+  env: 'production'
+});
+
+// Para logs síncronos (sem buffer)
+const synchronousSink = createPinoSink({
+  enableBackpressure: false, // Desabilita buffer
+  service: 'debug-service',
+  env: 'development'
+});
+```
+
+### Graceful Shutdown
+
+A biblioteca implementa limpeza automática de recursos:
+
+```typescript
+import { cleanupAllSinks } from '@boyscout/node-logger';
+
+// Em aplicações que precisam de controle manual
+process.on('SIGTERM', () => {
+  console.log('Iniciando graceful shutdown...');
+  cleanupAllSinks(); // Limpa todos os buffers
+  process.exit(0);
+});
+```
+
+### Tratamento de Tipos Especiais
+
+A biblioteca trata automaticamente tipos especiais durante a redação:
+
+```typescript
+import { createRedactor } from '@boyscout/node-logger';
+
+const redactor = createRedactor();
+
+// Tipos tratados automaticamente:
+const data = {
+  date: new Date(),                    // → "2024-01-15T10:30:00.000Z"
+  regex: /test/gi,                     // → "/test/gi"
+  buffer: Buffer.from('hello'),        // → "[Buffer]"
+  stream: process.stdin,               // → "[Stream]"
+  circular: {}                         // → "[Circular]" (detectado automaticamente)
+};
+
+// Aplicar redação
+const redacted = redactor(data);
+```
+
+### Composição de Redatores
+
+Para cenários complexos, você pode combinar múltiplos redatores:
+
+```typescript
+import { createRedactor, composeRedactors } from '@boyscout/node-logger';
+
+// Redator para dados pessoais
+const personalDataRedactor = createRedactor({
+  keys: ['cpf', 'cnpj', 'email', 'phone'],
+  patterns: [/\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b/gi]
+});
+
+// Redator para dados financeiros
+const financialDataRedactor = createRedactor({
+  keys: ['cardNumber', 'cvv', 'account', 'balance'],
+  patterns: [/\b\d{4}\s\d{4}\s\d{4}\s\d{4}\b/g]
+});
+
+// Redator para dados internos
+const internalDataRedactor = createRedactor({
+  keys: ['internal', 'debug', 'trace'],
+  mask: '[INTERNAL]'
+});
+
+// Combinar todos os redatores
+const compositeRedactor = composeRedactors(
+  personalDataRedactor,
+  financialDataRedactor,
+  internalDataRedactor
+);
+
+class PaymentService {
+  @Log({
+    redact: compositeRedactor,
+    includeArgs: true
+  })
+  async processPayment(paymentData: any) {
+    // Método com redação composta
+    return await this.paymentGateway.process(paymentData);
+  }
+}
 ```
 
 ### Integração com Express
@@ -405,6 +557,7 @@ Em caso de erro, o log incluirá:
 - `CorrelationIdMiddleware`: Middleware para Express
 - `correlationIdPlugin`: Plugin para Fastify
 - `cleanupAllSinks()`: Limpa todos os sinks registrados (útil para testes)
+- `composeRedactors(...redactors)`: Composição de múltiplos redatores
 
 ### Tipos
 
@@ -414,6 +567,17 @@ Em caso de erro, o log incluirá:
 - `RedactorOptions`: Opções do redator
 - `PinoSinkOptions`: Opções do sink do Pino
 - `PinoLike`: Interface para loggers compatíveis com Pino
+
+### Opções do RedactorOptions
+
+| Opção | Tipo | Padrão | Descrição |
+|-------|------|--------|-----------|
+| `keys` | `(string \| RegExp)[]` | Chaves padrão | Chaves sensíveis para redação |
+| `patterns` | `RegExp[]` | Padrões padrão | Padrões regex para redação |
+| `mask` | `string \| function` | `'***'` | Texto ou função de mascaramento |
+| `maxDepth` | `number` | `5` | Profundidade máxima de recursão |
+| `keepLengths` | `boolean` | `false` | Manter comprimento original das strings |
+| `redactArrayIndices` | `boolean` | `true` | Redatar índices de array sensíveis |
 
 ### Opções do PinoSinkOptions
 
@@ -434,11 +598,13 @@ Em caso de erro, o log incluirá:
 **IMPORTANTE**: A opção `enableBackpressure` tem comportamento padrão que pode causar comportamento inesperado para usuários existentes.
 
 ### Comportamento Atual
+
 - `enableBackpressure` padrão: `true` (com buffer)
 - **Problema**: Usuários existentes podem não esperar logs em buffer
 - **Solução**: Explicitamente defina `enableBackpressure: false` para comportamento síncrono
 
 ### Migração Recomendada
+
 ```typescript
 // ❌ Comportamento inesperado (logs em buffer)
 const sink = createPinoSink();
@@ -455,6 +621,7 @@ const sink = createPinoSink({
 ```
 
 ### Próxima Versão Major
+
 Na próxima versão major, o padrão mudará para `false` para melhor compatibilidade com versões anteriores.
 
 ## Fallback e Compatibilidade
