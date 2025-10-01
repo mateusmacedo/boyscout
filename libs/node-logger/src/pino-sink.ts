@@ -2,12 +2,6 @@
 // import pino from 'pino';
 import type { LogEntry } from './types.js';
 
-// Extend global to include our process handlers flag
-declare global {
-  var __boyscout_logger_process_handlers_setup: boolean | undefined;
-  var __boyscout_logger_sinks: Set<() => void> | undefined;
-}
-
 // Type definitions for optional pino dependency
 type LoggerOptions = {
   level?: string;
@@ -55,9 +49,77 @@ export interface PinoSinkOptions {
 const DEFAULT_BUFFER_SIZE = 1000;
 const DEFAULT_FLUSH_INTERVAL = 5000;
 
+// Default values for PinoSinkOptions
+const DEFAULT_SERVICE = 'node-logger';
+const DEFAULT_VERSION = '1.0.0';
+const DEFAULT_LOG_LEVEL = 'info';
+
+// Module-level state management for better isolation
+class ProcessHandlerManager {
+  private static instance: ProcessHandlerManager | null = null;
+  private sinks = new Set<() => void>();
+  private sinkInstances = new WeakMap<object, () => void>();
+  private isSetup = false;
+
+  static getInstance(): ProcessHandlerManager {
+    if (!ProcessHandlerManager.instance) {
+      ProcessHandlerManager.instance = new ProcessHandlerManager();
+    }
+    return ProcessHandlerManager.instance;
+  }
+
+  registerSink(sinkInstance: object, cleanup: () => void): void {
+    this.sinks.add(cleanup);
+    this.sinkInstances.set(sinkInstance, cleanup);
+    this.setupProcessHandlers();
+  }
+
+  unregisterSink(sinkInstance: object): void {
+    const cleanup = this.sinkInstances.get(sinkInstance);
+    if (cleanup) {
+      this.sinks.delete(cleanup);
+      this.sinkInstances.delete(sinkInstance);
+    }
+  }
+
+  private setupProcessHandlers(): void {
+    if (this.isSetup) return;
+
+    const gracefulShutdown = () => {
+      // Call cleanup for all registered sinks
+      for (const cleanup of this.sinks) {
+        try {
+          cleanup();
+        } catch (_error) {
+          // Ignore cleanup errors to prevent cascading failures
+        }
+      }
+    };
+
+    process.on('beforeExit', gracefulShutdown);
+    process.on('exit', gracefulShutdown);
+    process.on('SIGINT', gracefulShutdown);
+    process.on('SIGTERM', gracefulShutdown);
+    process.on('SIGQUIT', gracefulShutdown);
+
+    this.isSetup = true;
+  }
+
+  cleanupAllSinks(): void {
+    for (const cleanup of this.sinks) {
+      try {
+        cleanup();
+      } catch (_error) {
+        // Ignore cleanup errors
+      }
+    }
+    this.sinks.clear();
+  }
+}
+
 type LevelName = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal';
 const asLevel = (lvl: string | undefined): LevelName => {
-  switch ((lvl ?? 'info').toLowerCase()) {
+  switch ((lvl ?? DEFAULT_LOG_LEVEL).toLowerCase()) {
     case 'trace':
       return 'trace';
     case 'debug':
@@ -71,7 +133,7 @@ const asLevel = (lvl: string | undefined): LevelName => {
     case 'fatal':
       return 'fatal';
     default:
-      return 'info';
+      return DEFAULT_LOG_LEVEL;
   }
 };
 
@@ -141,11 +203,11 @@ export function createPinoSink(opts: PinoSinkOptions = {}) {
       // Dynamic import to avoid bundling issues
       const pino = require('pino');
       const pinoLogger = pino({
-        level: opts.loggerOptions?.level || 'info',
+        level: opts.loggerOptions?.level || DEFAULT_LOG_LEVEL,
         base: {
-          service: opts.service || 'node-logger',
+          service: opts.service || DEFAULT_SERVICE,
           env: opts.env || process.env.NODE_ENV || 'development',
-          version: opts.version || '1.0.0',
+          version: opts.version || DEFAULT_VERSION,
           ...opts.loggerOptions?.base,
         },
         ...opts.loggerOptions,
@@ -184,8 +246,8 @@ export function createPinoSink(opts: PinoSinkOptions = {}) {
     flushInterval = DEFAULT_FLUSH_INTERVAL,
   } = opts;
 
-  // Emit deprecation warning for default behavior
-  if (enableBackpressure && opts.enableBackpressure === undefined) {
+  // Emit deprecation warning when enableBackpressure is not explicitly set
+  if (opts.enableBackpressure === undefined) {
     console.warn(
       '[boyscout-logger] DEPRECATION WARNING: enableBackpressure defaults to true. ' +
         'This may cause unexpected behavior for existing users. ' +
@@ -214,33 +276,11 @@ export function createPinoSink(opts: PinoSinkOptions = {}) {
     });
   }
 
-  // Setup process event handlers for graceful shutdown
-  // Use a global registry to avoid multiple listeners across all sink instances
-  if (!global.__boyscout_logger_process_handlers_setup) {
-    // Initialize the sinks registry
-    global.__boyscout_logger_sinks = new Set();
+  // Get the process handler manager instance
+  const manager = ProcessHandlerManager.getInstance();
 
-    const gracefulShutdown = () => {
-      // Call cleanup for all registered sinks
-      if (global.__boyscout_logger_sinks) {
-        for (const cleanup of global.__boyscout_logger_sinks) {
-          try {
-            cleanup();
-          } catch (_error) {
-            // Ignore cleanup errors to prevent cascading failures
-          }
-        }
-      }
-    };
-
-    process.on('beforeExit', gracefulShutdown);
-    process.on('exit', gracefulShutdown);
-    process.on('SIGINT', gracefulShutdown);
-    process.on('SIGTERM', gracefulShutdown);
-    process.on('SIGQUIT', gracefulShutdown);
-
-    global.__boyscout_logger_process_handlers_setup = true;
-  }
+  // Create a unique sink instance for this logger
+  const sinkInstance = {};
 
   // Register this sink's cleanup function
   const cleanup = () => {
@@ -252,9 +292,7 @@ export function createPinoSink(opts: PinoSinkOptions = {}) {
     }
   };
 
-  if (global.__boyscout_logger_sinks) {
-    global.__boyscout_logger_sinks.add(cleanup);
-  }
+  manager.registerSink(sinkInstance, cleanup);
 
   return function pinoSink(e: LogEntry) {
     // Use buffer for backpressure mitigation
@@ -273,14 +311,6 @@ export function createPinoSink(opts: PinoSinkOptions = {}) {
 
 // Utility function to clean up all registered sinks (useful for tests)
 export function cleanupAllSinks(): void {
-  if (global.__boyscout_logger_sinks) {
-    for (const cleanup of global.__boyscout_logger_sinks) {
-      try {
-        cleanup();
-      } catch (_error) {
-        // Ignore cleanup errors
-      }
-    }
-    global.__boyscout_logger_sinks.clear();
-  }
+  const manager = ProcessHandlerManager.getInstance();
+  manager.cleanupAllSinks();
 }

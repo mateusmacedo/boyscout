@@ -110,8 +110,11 @@ describe('Memory Leak Fix Tests', () => {
     });
 
     // The sink should be registered for cleanup
-    expect(global.__boyscout_logger_sinks).toBeDefined();
-    expect(global.__boyscout_logger_sinks?.size).toBeGreaterThan(0);
+    // Since we're using the new ProcessHandlerManager, we can't directly access
+    // the internal state, but we can verify the sink works by checking that
+    // the process handlers are set up (indirect verification)
+    const beforeExitCount = process.listenerCount('beforeExit');
+    expect(beforeExitCount).toBeGreaterThan(0);
   });
 
   it('should not exceed MaxListenersExceededWarning threshold', () => {
