@@ -1,69 +1,50 @@
 import { workspaceRoot } from '@nx/devkit';
-import { nxE2EPreset } from '@nx/playwright/preset';
 import { defineConfig, devices } from '@playwright/test';
 
-// For CI, you may want to set BASE_URL to the deployed application.
-const baseURL = process.env.BASE_URL || 'http://localhost:3000';
-
 /**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
+ * Configuração simplificada do Playwright para testes E2E
  */
-// require('dotenv').config();
 
-/**
- * See https://playwright.dev/docs/test-configuration.
- */
+const baseURL = process.env.BASE_URL || 'http://localhost:3000/api';
+
 export default defineConfig({
-  ...nxE2EPreset(__filename, { testDir: './e2e' }),
-  /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
+  testDir: './e2e',
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 1 : undefined,
+  timeout: 30000, // 30 segundos por teste
+  expect: {
+    timeout: 10000, // 10 segundos para expectativas
+  },
+
+  // Reporter
+  reporter: [['html'], ...(process.env.CI ? [['github'] as ['github']] : [])],
+
+  // Configurações compartilhadas
   use: {
     baseURL,
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+    actionTimeout: 10000,
+    navigationTimeout: 30000,
   },
-  /* Run your local dev server before starting the tests */
+
+  // Servidor de desenvolvimento
   webServer: {
     command: 'npx nx serve nestjs-api',
-    url: 'http://localhost:3000/api',
+    url: baseURL,
     reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
+    timeout: 120000,
     cwd: workspaceRoot,
   },
+
+  // Apenas Chromium (mais rápido e suficiente para testes de API)
   projects: [
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
-
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
-
-    // Uncomment for mobile browsers support
-    /* {
-      name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'] },
-    },
-    {
-      name: 'Mobile Safari',
-      use: { ...devices['iPhone 12'] },
-    }, */
-
-    // Uncomment for branded browsers
-    /* {
-      name: 'Microsoft Edge',
-      use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    },
-    {
-      name: 'Google Chrome',
-      use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    } */
   ],
 });

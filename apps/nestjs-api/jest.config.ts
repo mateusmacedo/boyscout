@@ -11,7 +11,6 @@ export default {
   clearMocks: true,
   restoreMocks: true,
   // Coverage configuration
-  coverageReporters: ['text', 'lcov', 'html', 'json'],
   collectCoverageFrom: [
     'src/**/*.ts',
     '!src/**/*.spec.ts',
@@ -19,11 +18,16 @@ export default {
     '!src/**/__tests__/**',
     '!src/**/tests/**',
     '!src/**/test/**',
+    // Ignorar arquivos E2E
+    '!e2e/**',
+    '!**/e2e/**',
     // Ignorar arquivos de configuração e setup
-    '!src/**/*.config.ts',
-    '!src/**/*.setup.ts',
+    '!src/**/*.config.{ts,js,cjs,mjs}',
+    '!src/**/*.setup.{ts,js,cjs,mjs}',
     '!src/**/jest.config.*',
     '!src/**/jest.setup.*',
+    '!src/**/jest.preset.*',
+    '!src/**/jest.base.*',
     '!src/**/vite.config.*',
     '!src/**/webpack.config.*',
     '!src/**/eslint.config.*',
@@ -59,10 +63,9 @@ export default {
     '!src/**/testing/**',
     '!src/**/__mocks__/**',
     '!src/**/mocks/**',
-    // Ignorar arquivos específicos do NestJS
-    '!src/main.ts',
-    '!src/app/app.module.ts',
-    '!src/app/app.controller.ts', // Se for apenas um controller básico
+    // Ignorar arquivos específicos do NestJS (bootstrap e módulos)
+    '!src/main.ts', // Bootstrap da aplicação (não testável unitariamente)
+    '!src/**/*.module.ts', // Módulos NestJS (apenas configuração/metadados)
   ],
   coverageThreshold: {
     'src/app/**/*.ts': {

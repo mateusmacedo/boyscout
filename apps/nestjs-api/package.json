@@ -2,6 +2,13 @@
   "name": "@boyscout/nestjs-api",
   "version": "0.0.0",
   "private": true,
+  "scripts": {
+    "start:dev": "nx serve nestjs-api",
+    "start:prod": "nx serve nestjs-api --configuration=production",
+    "build": "nx build nestjs-api",
+    "test": "nx test nestjs-api",
+    "e2e": "nx e2e nestjs-api"
+  },
   "dependencies": {
     "@boyscout/node-logger": "workspace:*",
     "@nestjs/common": "^10.0.2",
