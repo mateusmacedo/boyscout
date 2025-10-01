@@ -43,6 +43,10 @@ deploy_infrastructure() {
     echo "[deploy] Deploying Centralized Ingress..."
     kubectl apply -f "${MANIFESTS_DIR}/05-ingress.yaml"
     
+    # Aplica NestJS API
+    echo "[deploy] Deploying NestJS API..."
+    kubectl apply -f "${MANIFESTS_DIR}/06-nestjs-api.yaml"
+    
     # Verifica status
     echo "[status] Checking pods..."
     kubectl get pods -n boyscout

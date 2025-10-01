@@ -55,12 +55,12 @@ spec:
                     port:
                       number: 80
 
-              # API routes for applications (when deployed)
-              - path: /api/node
+              # NestJS API routes
+              - path: /api
                 pathType: Prefix
                 backend:
                   service:
-                    name: node-api
+                    name: nestjs-api
                     port:
                       number: 3000
 
