@@ -20,10 +20,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mmanjos/boyscout.git",
+    "url": "git+https://github.com/mmanjos/boyscout.git",
     "directory": "libs/biome"
   },
   "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
     "access": "public"
   }
 }

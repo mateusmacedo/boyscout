@@ -43,7 +43,9 @@
     "changelog:all": "nx release changelog --projects=*",
     "local-registry": "nx local-registry",
     "local-registry:start": "nx local-registry --start",
-    "local-registry:stop": "nx local-registry --stop"
+    "local-registry:stop": "nx local-registry --stop",
+    "auth:github-packages": "./scripts/auth-github-packages.sh",
+    "publish:github": "nx release publish --registry=https://npm.pkg.github.com"
   },
   "private": false,
   "config": {
