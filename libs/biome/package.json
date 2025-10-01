@@ -1,0 +1,29 @@
+{
+  "name": "@boyscout/biome",
+  "version": "0.0.1",
+  "description": "Biome configuration preset for modern JavaScript/TypeScript projects",
+  "main": "biome.json",
+  "files": [
+    "biome.json",
+    "README.md"
+  ],
+  "keywords": [
+    "biome",
+    "linter",
+    "formatter",
+    "javascript",
+    "typescript",
+    "configuration",
+    "preset"
+  ],
+  "author": "Mateus Macedo Dos Anjos<macedodosanjosmateus@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mmanjos/boyscout.git",
+    "directory": "libs/biome"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
