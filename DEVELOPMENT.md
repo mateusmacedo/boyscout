@@ -1,20 +1,24 @@
 # Guia de Desenvolvimento
 
-Todos os comandos devem ser executados através do **Nx** para aproveitar cache, orquestração de dependências e eficiência do monorepo.
+> **📖 [README.md](./README.md)** - Visão geral e comandos essenciais do workspace.
 
-## 📦 Projetos
+Guia detalhado para desenvolvimento diário no workspace Nx. Todos os comandos devem ser executados através do **Nx** para aproveitar cache, orquestração de dependências e eficiência do monorepo.
 
-- **nestjs-api** (`apps/nestjs-api`) - API NestJS
-- **node-logger** (`libs/node-logger`) - Biblioteca de logging
+## 📦 Projetos do Workspace
 
-## 🚀 Comandos Essenciais
+- **@boyscout/biome** (`libs/biome`) - Configuração Biome para linting/formatação
+- **@boyscout/node-logger** (`libs/node-logger`) - Biblioteca de logging estruturado
+- **@boyscout/tsconfig** (`libs/tsconfig`) - Configurações TypeScript padronizadas
+- **nestjs-api** (`apps/nestjs-api`) - API NestJS (aplicação de exemplo)
+
+## 🚀 Comandos por Categoria
 
 ### Build
 
 ```bash
-# Build de um projeto específico
+# Build de projeto específico
+npx nx build @boyscout/node-logger
 npx nx build nestjs-api
-npx nx build node-logger
 
 # Build de todos os projetos
 npx nx run-many -t build
@@ -23,16 +27,19 @@ npx nx run-many -t build
 npx nx affected -t build
 ```
 
-### Testes Unitários
+### Testes
 
 ```bash
-# Testes de um projeto
+# Testes unitários
+npx nx test @boyscout/node-logger
+npx nx test @boyscout/node-logger --coverage
 npx nx test nestjs-api
-npx nx test node-logger
 
-# Testes com cobertura
-npx nx test nestjs-api --coverage
-npx nx test node-logger --coverage
+# Testes E2E (apenas aplicações)
+npx nx e2e nestjs-api
+npx nx e2e:ui nestjs-api              # Interface gráfica
+npx nx e2e nestjs-api -- --headed     # Com navegador visível
+npx nx e2e nestjs-api -- --debug      # Modo debug
 
 # Todos os testes
 npx nx run-many -t test
@@ -41,52 +48,38 @@ npx nx run-many -t test
 npx nx affected -t test
 ```
 
-### Testes E2E
+### Desenvolvimento
 
 ```bash
-# Executar testes E2E
-npx nx e2e nestjs-api
-
-# Interface gráfica (desenvolvimento)
-npx nx e2e:ui nestjs-api
-
-# Com navegador visível
-npx nx e2e nestjs-api -- --headed
-
-# Modo debug
-npx nx e2e nestjs-api -- --debug
-```
-
-### Servidor de Desenvolvimento
-
-```bash
-# Iniciar servidor
+# Servidor de desenvolvimento
 npx nx serve nestjs-api
-
-# Com modo de desenvolvimento
 npx nx serve nestjs-api --configuration=development
 
-# Com watch automático de dependências
+# Watch automático de dependências
 npx nx watch-deps nestjs-api
+
+# Testes em modo watch
+npx nx test @boyscout/node-logger --watch
 ```
 
-### Linting e Type-checking
+### Qualidade de Código
 
 ```bash
-# Lint de um projeto
+# Linting
+npx nx lint @boyscout/biome
+npx nx lint @boyscout/node-logger
 npx nx lint nestjs-api
-npx nx lint node-logger
 
 # Type-checking
+npx nx typecheck @boyscout/node-logger
 npx nx typecheck nestjs-api
-npx nx typecheck node-logger
 
 # Todos os projetos
 npx nx run-many -t lint
 npx nx run-many -t typecheck
 ```
 
-## 🎯 Workflows Comuns
+## 🎯 Workflows de Desenvolvimento
 
 ### Desenvolvimento Diário
 
@@ -95,7 +88,7 @@ npx nx run-many -t typecheck
 npx nx serve nestjs-api &
 
 # 2. Executar testes em watch mode (em outro terminal)
-npx nx test nestjs-api --watch
+npx nx test @boyscout/node-logger --watch
 
 # 3. Fazer alterações...
 
@@ -135,7 +128,7 @@ npx nx affected -t lint typecheck
 npx nx graph
 
 # Grafo de um projeto específico
-npx nx graph --focus=nestjs-api
+npx nx graph --focus=@boyscout/node-logger
 
 # Grafo de projetos afetados
 npx nx affected:graph
@@ -145,11 +138,11 @@ npx nx affected:graph
 
 ```bash
 # Ver targets disponíveis
+npx nx show project @boyscout/node-logger
 npx nx show project nestjs-api
-npx nx show project node-logger
 
-# Ver configuração
-npx nx show project nestjs-api --json
+# Ver configuração completa
+npx nx show project @boyscout/node-logger --json
 ```
 
 ### Cache e Performance
@@ -162,17 +155,17 @@ npx nx reset
 npx nx daemon --stop && npx nx daemon
 ```
 
-## 📊 Relatórios
+## 📊 Relatórios e Análise
 
 ### Cobertura de Testes
 
 ```bash
 # Gerar relatório de cobertura
-npx nx test nestjs-api --coverage
+npx nx test @boyscout/node-logger --coverage
 
 # Relatórios ficam em:
-# - coverage/apps/nestjs-api/
 # - coverage/libs/node-logger/
+# - coverage/apps/nestjs-api/
 ```
 
 ### Testes E2E
@@ -182,10 +175,10 @@ npx nx test nestjs-api --coverage
 # - apps/nestjs-api/playwright-report/
 
 # Visualizar último relatório
-npx playwright show-report apps/nestjs-api/playwright-report
+pnpx playwright show-report apps/nestjs-api/playwright-report
 ```
 
-## 🛠️ Manutenção
+## 🛠️ Manutenção do Workspace
 
 ### Atualizar Dependências
 
@@ -218,7 +211,7 @@ rm -rf node_modules/ && pnpm install
 
 ## 🎓 Dicas de Produtividade
 
-### Usar Affected para Otimização
+### Comandos Afetados (Otimização)
 
 O Nx sabe quais projetos foram alterados via Git:
 
@@ -236,10 +229,10 @@ O Nx cacheia resultados automaticamente. Comandos idênticos retornam instantane
 
 ```bash
 # Primeira execução: ~5s
-npx nx test node-logger
+npx nx test @boyscout/node-logger
 
 # Segunda execução: ~50ms (do cache)
-npx nx test node-logger
+npx nx test @boyscout/node-logger
 ```
 
 ### Execução Paralela
@@ -249,7 +242,7 @@ npx nx test node-logger
 npx nx run-many -t build test lint --parallel=3
 
 # Nx orquestra dependências automaticamente
-npx nx run-many -t build  # node-logger → nestjs-api (ordem correta)
+npx nx run-many -t build  # @boyscout/node-logger → nestjs-api (ordem correta)
 ```
 
 ## 📝 Comandos por Contexto
@@ -258,7 +251,7 @@ npx nx run-many -t build  # node-logger → nestjs-api (ordem correta)
 
 ```bash
 # Watch mode para desenvolvimento
-npx nx test nestjs-api --watch
+npx nx test @boyscout/node-logger --watch
 npx nx serve nestjs-api
 
 # Executar afetados ao criar PR
@@ -269,7 +262,7 @@ npx nx affected -t test lint typecheck e2e
 
 ```bash
 # Testar projeto específico
-npx nx test nestjs-api --coverage
+npx nx test @boyscout/node-logger --coverage
 
 # Debug E2E
 npx nx e2e:ui nestjs-api
@@ -290,6 +283,8 @@ npx nx run-many -t typecheck
 
 ## 🔗 Recursos
 
+- **[README.md](./README.md)** - Visão geral e comandos essenciais
+- **[RELEASE.md](./RELEASE.md)** - Referência rápida para release
 - [Documentação do Nx](https://nx.dev)
 - [Comandos do Nx](https://nx.dev/nx-api/nx/documents/run)
 - [Affected Commands](https://nx.dev/concepts/affected)

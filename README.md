@@ -2,11 +2,9 @@
 
 [![Nx logo](https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png)](https://nx.dev)
 
-✨ **Boyscout Workspace** - Monorepo com packages reutilizáveis para projetos modernos ✨.
+✨ **Boyscout Workspace** - Monorepo com packages reutilizáveis para projetos modernos ✨
 
 Workspace Nx com bibliotecas padronizadas para desenvolvimento JavaScript/TypeScript, incluindo configurações de linting, formatação, logging e TypeScript.
-
-> **📖 [Guia Completo de Desenvolvimento](./DEVELOPMENT.md)** - Todos os comandos Nx para desenvolvimento, build, testes e CI/CD.
 
 ## 📦 Packages Disponíveis
 
@@ -34,145 +32,65 @@ Configurações TypeScript padronizadas para projetos Node.js modernos.
 pnpm add -D @boyscout/tsconfig
 ```
 
-## 🚀 Desenvolvimento
+## 🚀 Início Rápido
 
-### Comandos Principais
+### Instalação e Setup
 
 ```bash
 # Instalar dependências
 pnpm install
 
-# Executar linting e formatação
-pnpm run check:fix
-
-# Executar testes
-pnpm run test
-
-# Build de todos os packages
-pnpm run build
-
-# Visualizar grafo de dependências
-pnpm run graph
+# Verificar workspace
+npx nx graph
 ```
 
-### Release e Versionamento
-
-O workspace utiliza **Nx Release** com versionamento independente baseado em **Conventional Commits**.
-
-#### Comandos Básicos
+### Comandos Essenciais
 
 ```bash
-# Release completo (versionamento + changelog + publicação)
-pnpm run release
+# Desenvolvimento
+pnpm run test             # Executar testes
+pnpm run test:watch       # Testes em modo watch
+pnpm run check:fix        # Linting e formatação
 
-# Verificar o que será feito (recomendado primeiro)
-pnpm run release:dry-run
+# Build e Release
+pnpm run build            # Build de todos os packages
+pnpm run release          # Release completo
+pnpm run release:dry-run  # Verificar release (recomendado)
 
-# Apenas versionamento
-pnpm run version
-
-# Apenas changelog
-pnpm run changelog
-
-# Apenas publicação
-pnpm run publish
+# Utilitários
+pnpm run graph            # Visualizar grafo de dependências
+pnpm run typecheck        # Type-checking
 ```
 
-#### Como Funciona
+## 🛠️ Desenvolvimento
 
-1. **Conventional Commits**: O versionamento é baseado nos commits seguindo o padrão conventional commits
-2. **Versionamento Automático**: Detecta automaticamente se é major, minor ou patch
-3. **Changelog Automático**: Gera changelog baseado nos commits
-4. **Independente**: Cada projeto é versionado independentemente
-
-#### Fluxo Básico - Todos os Projetos
+### Comandos por Projeto
 
 ```bash
-# 1. Fazer commits com conventional commits
-git commit -m "feat: adicionar nova funcionalidade"
+# Build
+npx nx build @boyscout/biome
+npx nx build @boyscout/node-logger
+npx nx build @boyscout/tsconfig
 
-# 2. Verificar o que será versionado
-pnpm run release:dry-run
+# Testes
+npx nx test @boyscout/node-logger
+npx nx test @boyscout/node-logger --coverage
 
-# 3. Executar o release
-pnpm run release
+# Lint
+npx nx lint @boyscout/biome
+npx nx lint @boyscout/node-logger
+
+# Type-checking
+npx nx typecheck @boyscout/node-logger
 ```
 
-#### Fluxo Independente - Projeto Específico
+### Comandos Afetados (Otimizado)
 
 ```bash
-# 1. Fazer commit que afeta apenas um projeto
-git commit -m "feat(biome): adicionar nova funcionalidade"
-
-# 2. Verificar versionamento apenas desse projeto
-nx release version --projects=@boyscout/biome --dry-run
-
-# 3. Versionar apenas esse projeto
-nx release version --projects=@boyscout/biome
-
-# 4. Gerar changelog apenas para esse projeto
-nx release changelog 1.1.0 --projects=@boyscout/biome
+# Executar apenas em projetos alterados
+npx nx affected -t build test lint
+npx nx affected:graph     # Ver grafo de afetados
 ```
-
-#### Fluxo Independente - Múltiplos Projetos
-
-```bash
-# 1. Fazer commits que afetam múltiplos projetos
-git commit -m "feat(biome): adicionar funcionalidade A"
-git commit -m "fix(utils): corrigir bug B"
-
-# 2. Versionar apenas os projetos afetados
-nx release version --projects=@boyscout/biome,@boyscout/utils --dry-run
-
-# 3. Executar versionamento
-nx release version --projects=@boyscout/biome,@boyscout/utils
-```
-
-#### Versionamento com Versão Específica
-
-```bash
-# Versionar com bump específico
-nx release version --projects=@boyscout/biome --specifier=patch
-nx release version --projects=@boyscout/biome --specifier=minor
-nx release version --projects=@boyscout/biome --specifier=major
-```
-
-#### Comandos Avançados
-
-```bash
-# Versionamento com opções específicas
-nx release version --projects=lib1 --specifier=minor --dry-run
-
-# Changelog com range específico
-nx release changelog --from=v1.0.0 --to=HEAD
-
-# Publicação com configurações específicas
-nx release publish
-```
-
-#### Configuração
-
-A configuração está no `nx.json`:
-
-```json
-{
-  "release": {
-    "projects": ["*"],
-    "version": {
-      "conventionalCommits": true
-    }
-  }
-}
-```
-
-#### Dicas
-
-- **Sempre use `--dry-run` primeiro** para verificar as mudanças
-- **Use conventional commits** para versionamento automático
-- **Cada projeto é versionado independentemente** baseado em suas mudanças
-- **O changelog é gerado automaticamente** baseado nos commits
-
-## 🛠️ Comandos Nx
 
 ### Gerar Nova Biblioteca
 
@@ -180,35 +98,51 @@ A configuração está no `nx.json`:
 npx nx g @nx/js:lib libs/nova-lib --publishable --importPath=@boyscout/nova-lib
 ```
 
-### Executar Tarefas
+## 📋 Release e Versionamento
+
+O workspace utiliza **Nx Release** com versionamento independente baseado em **Conventional Commits**.
+
+### Comandos Básicos
 
 ```bash
-# Build de projeto específico
-npx nx build @boyscout/biome
+# Release completo
+pnpm run release
 
-# Testes de projeto específico
-npx nx test @boyscout/node-logger
+# Verificar o que será feito (recomendado primeiro)
+pnpm run release:dry-run
 
-# Lint de projeto específico
-npx nx lint @boyscout/tsconfig
-
-# Todas as tarefas de um projeto
-npx nx <target> <project-name>
+# Comandos independentes
+pnpm run version    # Apenas versionamento
+pnpm run changelog  # Apenas changelog
+pnpm run publish    # Apenas publicação
 ```
 
-### Sincronização TypeScript
+### Fluxo Básico
+
+1. **Fazer commits** com conventional commits
+2. **Verificar** com `pnpm run release:dry-run`
+3. **Executar** `pnpm run release`
+
+### Release por Projeto
 
 ```bash
-# Sincronizar referências de projeto
-npx nx sync
+# Projeto específico
+nx release version --projects=@boyscout/biome --dry-run
+nx release version --projects=@boyscout/biome
 
-# Verificar sincronização (para CI)
-npx nx sync:check
+# Múltiplos projetos
+nx release version --projects=@boyscout/biome,@boyscout/utils
+
+# Versionamento específico
+nx release version --projects=@boyscout/biome --specifier=patch
+nx release version --projects=@boyscout/biome --specifier=minor
+nx release version --projects=@boyscout/biome --specifier=major
 ```
 
-## 📚 Recursos
+## 📚 Documentação Detalhada
 
-- [Documentação oficial do Nx Release](https://20.nx.dev/features/manage-releases)
+- **[DEVELOPMENT.md](./DEVELOPMENT.md)** - Guia completo de desenvolvimento
+- **[RELEASE.md](./RELEASE.md)** - Referência rápida para release
+- [Documentação oficial do Nx](https://nx.dev)
 - [Conventional Commits](https://www.conventionalcommits.org/)
 - [Semantic Versioning](https://semver.org/)
-- [Guia Completo de Desenvolvimento](./DEVELOPMENT.md)

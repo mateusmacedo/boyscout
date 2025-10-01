@@ -8,9 +8,7 @@
       "!{projectRoot}/tsconfig.spec.json",
       "!{projectRoot}/jest.config.[jt]s",
       "!{projectRoot}/src/test-setup.[jt]s",
-      "!{projectRoot}/test-setup.[jt]s",
-      "!{projectRoot}/.eslintrc.json",
-      "!{projectRoot}/eslint.config.mjs"
+      "!{projectRoot}/test-setup.[jt]s"
     ],
     "sharedGlobals": [
       "{workspaceRoot}/.nxignore",
@@ -64,12 +62,6 @@
     {
       "plugin": "@nx/playwright/plugin",
       "exclude": ["apps/nestjs-api/**/*"]
-    },
-    {
-      "plugin": "@nx/eslint/plugin",
-      "options": {
-        "targetName": "lint"
-      }
     }
   ],
   "release": {
@@ -108,6 +100,11 @@
       "cache": true
     },
     "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "biome check {projectRoot}",
+        "cwd": "{workspaceRoot}"
+      },
       "inputs": ["default", "{workspaceRoot}/.biomeignore"],
       "cache": true
     },

@@ -1,16 +1,16 @@
-# Nx Release - Versionamento e Changelog
+# Release e Versionamento - Referência Rápida
 
-> **📖 [Consulte o README.md principal](./README.md#release-e-versionamento)** para a documentação completa de release e versionamento.
+> **📖 [README.md](./README.md)** - Visão geral e comandos essenciais do workspace.
 
-Este arquivo serve como referência rápida para comandos de release. Para documentação completa, exemplos detalhados e configurações, consulte a seção **Release e Versionamento** do [README.md](./README.md).
+Referência rápida para comandos de release e versionamento usando **Nx Release** com **Conventional Commits**.
 
-## 🚀 Comandos Rápidos
+## 🚀 Comandos Essenciais
 
 ```bash
-# Release completo
+# Release completo (recomendado)
 pnpm run release
 
-# Verificar o que será feito (recomendado primeiro)
+# Verificar o que será feito (sempre execute primeiro)
 pnpm run release:dry-run
 
 # Comandos independentes
@@ -21,30 +21,93 @@ pnpm run publish    # Apenas publicação
 
 ## 📋 Fluxo Básico
 
-1. Fazer commits com conventional commits
-2. Verificar com `pnpm run release:dry-run`
-3. Executar `pnpm run release`
+1. **Fazer commits** com conventional commits
+2. **Verificar** com `pnpm run release:dry-run`
+3. **Executar** `pnpm run release`
 
-## 🎯 Comandos por Projeto
+## 🎯 Release por Projeto
+
+### Projeto Específico
 
 ```bash
-# Projeto específico
+# Verificar versionamento
 nx release version --projects=@boyscout/biome --dry-run
+
+# Executar versionamento
 nx release version --projects=@boyscout/biome
 
-# Múltiplos projetos
-nx release version --projects=@boyscout/biome,@boyscout/utils --dry-run
-nx release version --projects=@boyscout/biome,@boyscout/utils
+# Gerar changelog
+nx release changelog 1.1.0 --projects=@boyscout/biome
+```
 
-# Versionamento específico
+### Múltiplos Projetos
+
+```bash
+# Verificar múltiplos projetos
+nx release version --projects=@boyscout/biome,@boyscout/node-logger --dry-run
+
+# Executar versionamento
+nx release version --projects=@boyscout/biome,@boyscout/node-logger
+```
+
+### Versionamento Específico
+
+```bash
+# Bump específico
 nx release version --projects=@boyscout/biome --specifier=patch
 nx release version --projects=@boyscout/biome --specifier=minor
 nx release version --projects=@boyscout/biome --specifier=major
 ```
 
-## 📚 Documentação Completa
+## 📝 Conventional Commits
 
-- **[README.md - Release e Versionamento](./README.md#release-e-versionamento)** - Documentação completa
+### Tipos de Commit
+
+- `feat:` - Nova funcionalidade (minor)
+- `fix:` - Correção de bug (patch)
+- `feat!:` - Breaking change (major)
+- `docs:` - Documentação (não afeta versão)
+- `style:` - Formatação (não afeta versão)
+- `refactor:` - Refatoração (não afeta versão)
+- `test:` - Testes (não afeta versão)
+- `chore:` - Manutenção (não afeta versão)
+
+### Exemplos
+
+```bash
+# Nova funcionalidade
+git commit -m "feat: adicionar validação de email"
+
+# Correção de bug
+git commit -m "fix: corrigir erro de parsing JSON"
+
+# Breaking change
+git commit -m "feat!: remover API deprecated"
+
+# Com escopo
+git commit -m "feat(biome): adicionar regra de linting"
+git commit -m "fix(node-logger): corrigir decorator de logging"
+```
+
+## ⚙️ Configuração
+
+A configuração está no `nx.json`:
+
+```json
+{
+  "release": {
+    "projects": ["*"],
+    "projectsRelationship": "independent",
+    "version": {
+      "conventionalCommits": true
+    }
+  }
+}
+```
+
+## 🔗 Recursos
+
+- **[README.md](./README.md)** - Visão geral e comandos essenciais
 - **[DEVELOPMENT.md](./DEVELOPMENT.md)** - Guia completo de desenvolvimento
 - [Documentação oficial do Nx Release](https://20.nx.dev/features/manage-releases)
 - [Conventional Commits](https://www.conventionalcommits.org/)
