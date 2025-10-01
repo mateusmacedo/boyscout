@@ -28,6 +28,12 @@
     "pino": "^8.20.0",
     "pino-pretty": "^11.0.0"
   },
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "CHANGELOG.md",
+    "docs/**/*"
+  ],
   "publishConfig": {
     "access": "public"
   }
