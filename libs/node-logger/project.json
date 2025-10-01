@@ -1,0 +1,52 @@
+{
+  "name": "@boyscout/node-logger",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/node-logger/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "nx:run-script",
+      "dependsOn": ["^build"],
+      "outputs": ["{projectRoot}/dist"],
+      "cache": true,
+      "options": {
+        "script": "build"
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "options": {
+        "jestConfig": "libs/node-logger/jest.config.js",
+        "passWithNoTests": true
+      },
+      "cache": true,
+      "inputs": ["default", "^default"],
+      "outputs": ["{workspaceRoot}/coverage/libs/node-logger"]
+    },
+    "test:watch": {
+      "executor": "@nx/jest:jest",
+      "options": {
+        "jestConfig": "libs/node-logger/jest.config.js",
+        "watch": true
+      },
+      "cache": false
+    },
+    "test:coverage": {
+      "executor": "@nx/jest:jest",
+      "options": {
+        "jestConfig": "libs/node-logger/jest.config.js",
+        "coverage": true
+      },
+      "cache": true,
+      "outputs": ["{workspaceRoot}/coverage/libs/node-logger"]
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "biome lint libs/node-logger"
+      },
+      "cache": true
+    }
+  },
+  "tags": ["type:library", "scope:shared"]
+}

@@ -2,6 +2,11 @@
   "name": "@boyscout/source",
   "version": "0.0.0",
   "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.0",
   "scripts": {
     "lint": "biome lint .",
     "lint:fix": "biome lint --write .",
@@ -11,6 +16,22 @@
     "check:fix": "biome check --write .",
     "commit": "cz",
     "prepare": "husky",
+    "clean": "nx reset && rm -rf dist coverage .nx/cache .jest-cache",
+    "clean:all": "pnpm clean && rm -rf node_modules pnpm-lock.yaml",
+    "build": "nx run-many -t build",
+    "build:watch": "nx run-many -t build --watch",
+    "test": "nx run-many -t test",
+    "test:watch": "nx run-many -t test --watch",
+    "test:coverage": "nx run-many -t test:coverage",
+    "test:ci": "nx run-many -t test --ci --coverage",
+    "typecheck": "nx run-many -t typecheck",
+    "typecheck:watch": "nx run-many -t typecheck --watch",
+    "affected:build": "nx affected -t build",
+    "affected:test": "nx affected -t test",
+    "affected:lint": "nx affected -t lint",
+    "affected:typecheck": "nx affected -t typecheck",
+    "graph": "nx graph",
+    "graph:file": "nx graph --file=graph.html",
     "release": "nx release",
     "release:dry-run": "nx release --dry-run",
     "version": "nx release version",
@@ -19,7 +40,10 @@
     "version:project": "nx release version --projects",
     "changelog:project": "nx release changelog --projects",
     "version:all": "nx release version --projects=*",
-    "changelog:all": "nx release changelog --projects=*"
+    "changelog:all": "nx release changelog --projects=*",
+    "local-registry": "nx local-registry",
+    "local-registry:start": "nx local-registry --start",
+    "local-registry:stop": "nx local-registry --stop"
   },
   "private": false,
   "config": {
@@ -31,15 +55,38 @@
     "@biomejs/biome": "^2.2.4",
     "@commitlint/cli": "^20.1.0",
     "@commitlint/config-conventional": "^20.0.0",
+    "@nx/jest": "20.8.2",
     "@nx/js": "20.8.2",
     "@swc-node/register": "~1.9.1",
     "@swc/core": "~1.5.7",
     "@swc/helpers": "~0.5.11",
+    "@swc/jest": "~0.2.36",
+    "@types/jest": "^29.5.12",
+    "@types/node": "18.16.9",
     "commitizen": "^4.3.1",
     "cz-conventional-changelog": "^3.3.0",
     "husky": "^9.1.7",
+    "jest": "^29.7.0",
+    "jest-environment-node": "^29.7.0",
     "nx": "20.8.2",
+    "ts-jest": "^29.1.0",
+    "ts-node": "10.9.1",
     "tslib": "^2.3.0",
-    "typescript": "~5.7.2"
+    "typescript": "~5.7.2",
+    "verdaccio": "^6.0.5"
+  },
+  "dependencies": {},
+  "nx": {
+    "includedScripts": [],
+    "targets": {
+      "local-registry": {
+        "executor": "@nx/js:verdaccio",
+        "options": {
+          "port": 4873,
+          "config": ".verdaccio/config.yml",
+          "storage": "tmp/local-registry/storage"
+        }
+      }
+    }
   }
 }
