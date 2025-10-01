@@ -26,7 +26,7 @@
         "noArrayIndexKey": "warn"
       },
       "style": {
-        "useImportType": "warn",
+        "useImportType": "off",
         "noNonNullAssertion": "warn",
         "useNodejsImportProtocol": "warn",
         "useConst": "error"
