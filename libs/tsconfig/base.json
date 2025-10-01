@@ -23,6 +23,10 @@
     "noImplicitAny": true,
     "checkJs": true,
     "allowJs": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "useDefineForClassFields": false,
+    "downlevelIteration": true
   }
 }
