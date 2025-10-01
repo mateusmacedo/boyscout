@@ -77,14 +77,7 @@
         "specifierSource": "conventional-commits"
       }
     },
-    "changelog": {
-      "workspaceChangelog": {
-        "file": "{workspaceRoot}/CHANGELOG.md"
-      },
-      "projectChangelogs": {
-        "file": "{projectRoot}/CHANGELOG.md"
-      }
-    }
+    "releaseTagPattern": "{projectName}@{version}"
   },
   "targetDefaults": {
     "build": {
