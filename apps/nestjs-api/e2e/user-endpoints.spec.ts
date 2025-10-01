@@ -286,9 +286,9 @@ test.describe('User Endpoints - Performance Tests', () => {
 
     // Assert: Verifica que todos foram criados
     expect(created).toHaveLength(5);
-    created.forEach((user) => {
+    for (const user of created) {
       assertionHelpers.expectProperties(user, ['id', 'name', 'email']);
-    });
+    }
   });
 
   test('should handle concurrent user searches efficiently', async ({ request }) => {
@@ -307,14 +307,14 @@ test.describe('User Endpoints - Performance Tests', () => {
     );
 
     // Assert: Verifica performance e resultados
-    const result = await performanceHelpers.measureTime(async () => {
+    const result = await performanceHelpers.measureTime(() => {
       return Promise.all(searches);
     });
 
     expect(result.duration).toBeLessThan(testConstants.performance.maxResponseTime * 5);
-    result.result.forEach((response) => {
+    for (const response of result.result) {
       expect(response.status()).toBe(testConstants.httpCodes.ok);
-    });
+    }
   });
 
   test('should complete CRUD operations within time limits', async ({ request }) => {

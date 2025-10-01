@@ -3,15 +3,18 @@
  * Seguindo padrões ADR/RFC da lib
  */
 
-import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
+import { CustomLogger } from './config/custom-logger';
 
 async function bootstrap() {
-  const logger = new Logger('Bootstrap');
+  const logger = new CustomLogger();
 
   try {
-    const app = await NestFactory.create(AppModule);
+    const app = await NestFactory.create(AppModule, {
+      logger: logger,
+    });
+
     const globalPrefix = 'api';
     app.setGlobalPrefix(globalPrefix);
 
@@ -22,10 +25,11 @@ async function bootstrap() {
     await app.listen(port);
 
     logger.log(
-      `🚀 ${serviceName} v${serviceVersion} is running on: http://localhost:${port}/${globalPrefix}`
+      `🚀 ${serviceName} v${serviceVersion} is running on: http://localhost:${port}/${globalPrefix}`,
+      'Bootstrap'
     );
   } catch (error) {
-    logger.error('Failed to start application', (error as Error).stack);
+    logger.error('Failed to start application', (error as Error).stack, 'Bootstrap');
     process.exit(1);
   }
 }

@@ -261,7 +261,7 @@ export const batchHelpers = {
   /**
    * Executa múltiplas requests concorrentemente
    */
-  async executeInParallel<T>(operations: Array<() => Promise<T>>): Promise<T[]> {
+  executeInParallel<T>(operations: Array<() => Promise<T>>): Promise<T[]> {
     return Promise.all(operations.map((op) => op()));
   },
 

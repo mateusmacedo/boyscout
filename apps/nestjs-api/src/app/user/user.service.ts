@@ -1,6 +1,6 @@
+import { randomUUID } from 'node:crypto';
 import { Log } from '@boyscout/node-logger';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { randomUUID } from 'crypto';
 
 export interface User {
   id: string;

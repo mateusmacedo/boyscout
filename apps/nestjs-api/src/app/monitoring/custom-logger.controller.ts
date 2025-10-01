@@ -83,7 +83,7 @@ export class CustomLoggerController {
       if (!body.metric || body.value === undefined || body.value === null) {
         throw new HttpException('Metric and value are required', HttpStatus.BAD_REQUEST);
       }
-      if (typeof body.value !== 'number' || isNaN(body.value)) {
+      if (typeof body.value !== 'number' || Number.isNaN(body.value)) {
         throw new HttpException('Value must be a valid number', HttpStatus.BAD_REQUEST);
       }
       return this.customLoggerService.logPerformanceMetric(body.metric, body.value, body.unit);

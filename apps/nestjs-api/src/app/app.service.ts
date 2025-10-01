@@ -1,6 +1,6 @@
+import { randomUUID } from 'node:crypto';
 import { Log } from '@boyscout/node-logger';
 import { Injectable } from '@nestjs/common';
-import { randomUUID } from 'crypto';
 
 @Injectable()
 export class AppService {

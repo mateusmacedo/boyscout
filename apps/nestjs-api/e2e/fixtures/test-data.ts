@@ -5,7 +5,7 @@
  * seguindo boas práticas de isolamento de testes.
  */
 
-import { randomUUID } from 'crypto';
+import { randomUUID } from 'node:crypto';
 
 /**
  * Gera um ID único usando UUID para garantir unicidade entre testes paralelos
