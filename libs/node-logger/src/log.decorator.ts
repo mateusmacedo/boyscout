@@ -42,7 +42,7 @@ export function Log(opts: LogOptions = {}) {
 
   // Legacy decorator syntax for experimentalDecorators: true
   return (
-    _target: any,
+    _target: unknown,
     propertyKey: string | symbol,
     descriptor?: PropertyDescriptor
   ): PropertyDescriptor | undefined => {

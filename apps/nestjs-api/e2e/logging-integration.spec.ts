@@ -51,9 +51,9 @@ test.describe('API Performance Tests', () => {
     const promises = Array.from({ length: 5 }, () => request.get('/api'));
     const responses = await Promise.all(promises);
 
-    responses.forEach((response) => {
+    for (const response of responses) {
       expect(response.status()).toBe(200);
-    });
+    }
   });
 
   test('should handle async operations efficiently', async ({ request }) => {

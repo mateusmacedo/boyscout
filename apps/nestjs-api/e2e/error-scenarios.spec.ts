@@ -72,9 +72,9 @@ test.describe('Error Scenarios and Validation', () => {
     const promises = Array.from({ length: 3 }, () => request.get('/api/error'));
     const responses = await Promise.all(promises);
 
-    responses.forEach((response) => {
+    for (const response of responses) {
       expect(response.status()).toBe(500);
-    });
+    }
   });
 
   test('should handle rapid successive requests', async ({ request }) => {
@@ -85,9 +85,9 @@ test.describe('Error Scenarios and Validation', () => {
     }
 
     const responses = await Promise.all(promises);
-    responses.forEach((response) => {
+    for (const response of responses) {
       expect(response.status()).toBe(200);
-    });
+    }
   });
 });
 

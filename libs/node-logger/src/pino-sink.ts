@@ -181,7 +181,7 @@ export function createPinoSink(opts: PinoSinkOptions = {}) {
   if (enableBackpressure) {
     logBuffer = new LogBuffer(bufferSize, flushInterval, (entries: LogEntry[]) => {
       // Process buffered entries
-      entries.forEach((entry) => {
+      for (const entry of entries) {
         const level = asLevel(entry.level as string);
         const {
           level: _drop,
@@ -191,7 +191,7 @@ export function createPinoSink(opts: PinoSinkOptions = {}) {
         } = entry;
         const l = entry.correlationId ? logger.child({ cid: entry.correlationId }) : logger;
         (l[level] as (...args: unknown[]) => unknown)(payload, fmt(entry));
-      });
+      }
     });
   }
 
@@ -204,13 +204,13 @@ export function createPinoSink(opts: PinoSinkOptions = {}) {
     const gracefulShutdown = () => {
       // Call cleanup for all registered sinks
       if (global.__boyscout_logger_sinks) {
-        global.__boyscout_logger_sinks.forEach((cleanup) => {
+        for (const cleanup of global.__boyscout_logger_sinks) {
           try {
             cleanup();
           } catch (_error) {
             // Ignore cleanup errors to prevent cascading failures
           }
-        });
+        }
       }
     };
 
@@ -255,13 +255,13 @@ export function createPinoSink(opts: PinoSinkOptions = {}) {
 // Utility function to clean up all registered sinks (useful for tests)
 export function cleanupAllSinks(): void {
   if (global.__boyscout_logger_sinks) {
-    global.__boyscout_logger_sinks.forEach((cleanup) => {
+    for (const cleanup of global.__boyscout_logger_sinks) {
       try {
         cleanup();
       } catch (_error) {
         // Ignore cleanup errors
       }
-    });
+    }
     global.__boyscout_logger_sinks.clear();
   }
 }

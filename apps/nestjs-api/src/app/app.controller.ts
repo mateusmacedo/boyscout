@@ -23,7 +23,7 @@ export class AppController {
     includeResult: true,
     sampleRate: 0.1,
   })
-  async getDataAsync() {
+  getDataAsync() {
     return this.appService.getDataAsync();
   }
 

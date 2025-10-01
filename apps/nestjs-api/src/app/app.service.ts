@@ -31,7 +31,7 @@ export class AppService {
     includeArgs: true,
     includeResult: true,
   })
-  async getDataWithError(): Promise<{ message: string }> {
+  getDataWithError(): Promise<{ message: string }> {
     throw new Error('Simulated error for logging demonstration');
   }
 

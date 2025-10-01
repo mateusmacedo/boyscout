@@ -153,7 +153,7 @@ describe('Memory Leak Fix Tests', () => {
 
     // Call all methods to trigger decorator initialization
     for (let i = 1; i <= 10; i++) {
-      (service as any)[`method${i}`]();
+      (service as Record<string, () => string>)[`method${i}`]();
     }
 
     // Check that we don't exceed the MaxListeners threshold (10)

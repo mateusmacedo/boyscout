@@ -19,7 +19,7 @@ describe('AppController', () => {
       getDataAsync: jest.fn(),
       getDataWithError: jest.fn(),
       processUserData: jest.fn(),
-    } as any;
+    } as Partial<AppService>;
 
     // Create controller instance manually
     controller = new AppController(service);
