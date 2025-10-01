@@ -60,6 +60,38 @@
         "command": "biome check apps/nestjs-api",
         "cwd": "."
       }
+    },
+    "deploy:docker": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd infra/docker && make up && cd ../.. && nx build nestjs-api && docker build -t boyscout-nestjs-api:latest -f apps/nestjs-api/Dockerfile . && docker run -d --name boyscout-nestjs-api --network boyscout_boyscout-network -p 3000:3000 boyscout-nestjs-api:latest",
+        "cwd": "{workspaceRoot}"
+      },
+      "description": "Deploy da API NestJS no ambiente Docker"
+    },
+    "deploy:k3d": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd infra/k3d && make up && make deploy-boyscout && cd ../.. && nx build nestjs-api && cd infra/k3d && make build-images",
+        "cwd": "{workspaceRoot}"
+      },
+      "description": "Deploy da API NestJS no ambiente k3d"
+    },
+    "test:integration": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd infra/docker && make test && cd ../.. && nx test nestjs-api",
+        "cwd": "{workspaceRoot}"
+      },
+      "description": "Testa integração da API com infraestrutura"
+    },
+    "dev:with-infra": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd infra/docker && make up && cd ../.. && nx serve nestjs-api",
+        "cwd": "{workspaceRoot}"
+      },
+      "description": "Inicia desenvolvimento com infraestrutura"
     }
   }
 }
