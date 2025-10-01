@@ -1,5 +1,6 @@
 import { Log } from '@boyscout/node-logger';
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { randomUUID } from 'crypto';
 
 export interface User {
   id: string;
@@ -29,7 +30,7 @@ export class UserService {
     await new Promise((resolve) => setTimeout(resolve, 150));
 
     const user: User = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: randomUUID(),
       name: userData.name,
       email: userData.email,
       createdAt: new Date(),

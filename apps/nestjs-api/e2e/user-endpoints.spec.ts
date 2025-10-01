@@ -91,19 +91,19 @@ test.describe('User Endpoints - CRUD Operations', () => {
     await assertionHelpers.expectErrorWithMessage(
       response,
       testConstants.httpCodes.notFound,
-      'not found'
+      testConstants.user.notFoundMessage
     );
   });
 
   test('PUT /api/users/:id - should update user', async ({ request }) => {
     // Arrange: Cria um usuário
-    const userData = userDataFactory.create({ name: 'Original Name' });
+    const userData = userDataFactory.create({ name: testConstants.user.originalName });
     const createdUser = await userHelpers.create(request, userData);
     createdUserIds.push(createdUser.id);
 
     // Act: Atualiza o usuário
     const updateData = {
-      name: 'Updated Name',
+      name: testConstants.user.updatedName,
       email: userData.email, // Mantém o mesmo email
     };
     const response = await request.put(`/api/users/${createdUser.id}`, {
@@ -119,7 +119,7 @@ test.describe('User Endpoints - CRUD Operations', () => {
 
   test('PUT /api/users/:id - should return 404 for non-existent user', async ({ request }) => {
     // Act: Tenta atualizar usuário inexistente
-    const updateData = { name: 'Updated Name' };
+    const updateData = { name: testConstants.user.updatedName };
     const response = await request.put('/api/users/non-existent-id', {
       data: updateData,
     });
@@ -139,7 +139,7 @@ test.describe('User Endpoints - CRUD Operations', () => {
     // Assert: Verifica deleção
     expect(response.status()).toBe(testConstants.httpCodes.ok);
     const data = await response.json();
-    expect(data.message).toBe('User deleted successfully');
+    expect(data.message).toBe(testConstants.user.successMessage);
 
     // Verifica que usuário não existe mais
     const getResponse = await request.get(`/api/users/${createdUser.id}`);
@@ -171,7 +171,7 @@ test.describe('User Endpoints - Search and Statistics', () => {
     const users = [
       userDataFactory.create({ name: `${searchTerm} Alpha` }),
       userDataFactory.create({ name: `${searchTerm} Beta` }),
-      userDataFactory.create({ name: 'Other User' }),
+      userDataFactory.create({ name: testConstants.user.otherUserName }),
     ];
     const created = await userHelpers.createBatch(request, users);
     createdUserIds.push(...created.map((u) => u.id));
@@ -197,7 +197,7 @@ test.describe('User Endpoints - Search and Statistics', () => {
     await assertionHelpers.expectErrorWithMessage(
       response,
       testConstants.httpCodes.badRequest,
-      'Query parameter is required'
+      testConstants.user.queryRequiredMessage
     );
   });
 
@@ -338,7 +338,7 @@ test.describe('User Endpoints - Performance Tests', () => {
     await performanceHelpers.assertTimeLimit(
       async () =>
         request.put(`/api/users/${createdUser.id}`, {
-          data: { name: 'Updated Name' },
+          data: { name: testConstants.user.updatedName },
         }),
       testConstants.performance.maxResponseTime
     );

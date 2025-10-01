@@ -5,10 +5,12 @@
  * seguindo boas práticas de isolamento de testes.
  */
 
+import { randomUUID } from 'crypto';
+
 /**
- * Gera um timestamp único para garantir unicidade entre testes paralelos
+ * Gera um ID único usando UUID para garantir unicidade entre testes paralelos
  */
-export const uniqueId = () => `${Date.now()}-${Math.random().toString(36).substring(7)}`;
+export const uniqueId = () => randomUUID();
 
 /**
  * Gera um email único para testes
@@ -230,5 +232,18 @@ export const testConstants = {
     maxResponseTime: 1000, // ms
     maxConcurrentRequests: 100,
     burstSize: 30,
+  },
+
+  /**
+   * Dados de teste para usuários
+   */
+  user: {
+    originalName: 'Original Name',
+    updatedName: 'Updated Name',
+    otherUserName: 'Other User',
+    largeUserName: 'Large User',
+    successMessage: 'User deleted successfully',
+    queryRequiredMessage: 'Query parameter is required',
+    notFoundMessage: 'not found',
   },
 };
