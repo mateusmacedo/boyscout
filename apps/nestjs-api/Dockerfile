@@ -1,23 +1,41 @@
-# Imagem simples para testar health checks
-FROM node:18-alpine
+# Multi-stage build para projeto Nx
+FROM node:22-alpine AS base
 
-# Instalar curl para health checks
-RUN apk add --no-cache curl
+# Instalar dependências do sistema e atualizar pacotes
+RUN apk add --no-cache curl && apk upgrade --no-cache
 
 # Definir diretório de trabalho
 WORKDIR /app
 
-# Copiar arquivos de dependências
-COPY package*.json ./
+# Copiar arquivos de configuração do workspace
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY nx.json tsconfig.base.json ./
 
-# Instalar dependências
-RUN npm install
+# Instalar pnpm globalmente
+RUN npm install -g pnpm@8.15.0
+
+# Instalar dependências do workspace
+RUN pnpm install --frozen-lockfile
 
 # Copiar código fonte
 COPY . .
 
-# Expor porta
-EXPOSE 3000
+# Build do projeto
+RUN pnpm build nestjs-api
+
+# Stage de produção
+FROM node:22-alpine AS production
+
+# Instalar curl para health checks e atualizar pacotes
+RUN apk add --no-cache curl && apk upgrade --no-cache
+
+# Definir diretório de trabalho
+WORKDIR /app
+
+# Copiar apenas os arquivos necessários para produção
+COPY --from=base /app/dist/apps/nestjs-api ./dist/apps/nestjs-api
+COPY --from=base /app/node_modules ./node_modules
+COPY --from=base /app/package.json ./package.json
 
 # Criar usuário não-root
 RUN addgroup -g 1001 -S nodejs
