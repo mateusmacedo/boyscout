@@ -1,6 +1,6 @@
 import { Log } from '@boyscout/node-logger';
 import { Body, Controller, Get, HttpException, HttpStatus, Post, Query } from '@nestjs/common';
-import type { AnalyticsService } from './analytics.service';
+import { AnalyticsService } from './analytics.service';
 
 @Controller('analytics')
 export class AnalyticsController {

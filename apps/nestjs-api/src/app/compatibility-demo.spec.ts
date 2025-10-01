@@ -191,7 +191,7 @@ describe('@boyscout/node-logger NestJS Compatibility Demo', () => {
 
       const service = testModule.get<ErrorTestService>(ErrorTestService);
 
-      await expect(service.methodThatThrows({ test: 'data' })).rejects.toThrow(
+      expect(() => service.methodThatThrows({ test: 'data' })).toThrow(
         'Business error: {"test":"data"}'
       );
 

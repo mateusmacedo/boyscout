@@ -11,7 +11,7 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
-import type { CreateUserDto, User, UserService } from './user.service';
+import { CreateUserDto, User, UserService } from './user.service';
 
 @Controller('users')
 export class UserController {

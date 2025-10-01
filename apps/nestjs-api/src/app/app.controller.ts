@@ -1,6 +1,6 @@
 import { Log } from '@boyscout/node-logger';
 import { Body, Controller, Get, HttpException, HttpStatus, Post } from '@nestjs/common';
-import type { AppService } from './app.service';
+import { AppService } from './app.service';
 
 @Controller()
 export class AppController {

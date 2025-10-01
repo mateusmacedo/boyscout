@@ -1,6 +1,6 @@
 import { Log } from '@boyscout/node-logger';
 import { Controller, Get, HttpException, HttpStatus } from '@nestjs/common';
-import type { HealthService } from './health.service';
+import { HealthService } from './health.service';
 
 @Controller('health')
 export class HealthController {

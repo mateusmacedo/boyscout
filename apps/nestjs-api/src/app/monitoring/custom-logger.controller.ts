@@ -1,6 +1,6 @@
 import { Log } from '@boyscout/node-logger';
 import { Body, Controller, Get, HttpException, HttpStatus, Post, Query } from '@nestjs/common';
-import type { CustomLoggerService } from './custom-logger.service';
+import { CustomLoggerService } from './custom-logger.service';
 
 @Controller('monitoring')
 export class CustomLoggerController {

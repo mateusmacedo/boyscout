@@ -140,17 +140,17 @@ describe('NestJS Integration with @boyscout/node-logger', () => {
     const service = testModule.get<ErrorTestService>(ErrorTestService);
 
     // Teste de erro
-    await expect(service.methodThatThrows({ test: 'data' })).rejects.toThrow(
+    expect(() => service.methodThatThrows({ test: 'data' })).toThrow(
       'Test error with data: {"test":"data"}'
     );
 
     // Teste de validação
-    await expect(service.methodWithValidation({})).rejects.toThrow(
+    expect(() => service.methodWithValidation({})).toThrow(
       'Validation failed: required field missing'
     );
 
     // Teste de sucesso
-    const result = await service.methodWithValidation({ required: true, other: 'data' });
+    const result = service.methodWithValidation({ required: true, other: 'data' });
     expect(result).toEqual({ validated: true, data: { required: true, other: 'data' } });
 
     await testModule.close();

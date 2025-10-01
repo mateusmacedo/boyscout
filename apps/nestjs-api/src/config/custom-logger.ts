@@ -5,7 +5,7 @@ import type { LoggerService, LogLevel } from '@nestjs/common';
  * Compatível com o padrão do @boyscout/node-logger
  */
 export class CustomLogger implements LoggerService {
-  private readonly pinoLogger: unknown;
+  private readonly pinoLogger: Record<string, (data: unknown) => void> | null;
   private readonly service = 'nestjs-api';
   private readonly env = process.env.NODE_ENV || 'development';
   private readonly version = process.env.SERVICE_VERSION || '1.0.0';
@@ -43,7 +43,7 @@ export class CustomLogger implements LoggerService {
   }
 
   private logWithPino(level: string, message: unknown, context?: string, trace?: string) {
-    if (this.pinoLogger) {
+    if (this.pinoLogger?.[level]) {
       const logData = {
         context: context || 'NestJS',
         message: this.formatMessage(message, context),
