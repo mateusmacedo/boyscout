@@ -1,0 +1,16 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nrwl/nx/master/packages/nx/schemas/project-schema.json",
+  "tags": ["type:lib"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/tsconfig",
+        "main": "libs/tsconfig/base.json",
+        "tsConfig": "libs/tsconfig/tsconfig.lib.json",
+        "assets": ["libs/tsconfig/*.json", "libs/tsconfig/README.md"]
+      }
+    }
+  }
+}
