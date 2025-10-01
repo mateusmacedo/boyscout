@@ -57,6 +57,14 @@ afterAll(() => {
   console.error = originalConsole.error;
   console.warn = originalConsole.warn;
   console.log = originalConsole.log;
+
+  // Clean up any remaining logger sinks to prevent memory leaks
+  try {
+    const { cleanupAllSinks } = require('./libs/node-logger/src/pino-sink.js');
+    cleanupAllSinks();
+  } catch (_error) {
+    // Ignore if module is not available
+  }
 });
 
 // Global timeout configurations

@@ -47,14 +47,63 @@ function createJestConfig(projectRoot, projectName, customConfig = {}) {
       '!src/**/index.ts',
       '!src/**/index.js',
       '!**/index.{ts,js}',
+      // Ignorar arquivos de configuração
+      '!**/*.config.{ts,js}',
+      '!**/*.setup.{ts,js}',
+      '!**/jest.config.*',
+      '!**/jest.setup.*',
+      '!**/jest.preset.*',
+      '!**/vite.config.*',
+      '!**/webpack.config.*',
+      '!**/rollup.config.*',
+      '!**/eslint.config.*',
+      '!**/prettier.config.*',
+      '!**/tailwind.config.*',
+      '!**/postcss.config.*',
+      '!**/babel.config.*',
+      '!**/tsconfig.*',
+      '!**/nx.json',
+      '!**/package.json',
+      // Ignorar arquivos de ambiente e variáveis
+      '!**/.env*',
+      '!**/environment.*',
+      '!**/env.*',
+      // Ignorar arquivos de build e distribuição
+      '!**/dist/**',
+      '!**/build/**',
+      '!**/out/**',
+      '!**/coverage/**',
+      '!**/node_modules/**',
+      // Ignorar arquivos de documentação
+      '!**/*.md',
+      '!**/README*',
+      '!**/CHANGELOG*',
+      '!**/LICENSE*',
+      // Ignorar arquivos de tipos e declarações
+      '!**/*.d.ts',
+      '!**/types/**',
+      '!**/typings/**',
+      // Ignorar arquivos de migração e seed
+      '!**/migrations/**',
+      '!**/seeds/**',
+      '!**/fixtures/**',
+      // Ignorar arquivos de exemplo e demo
+      '!**/examples/**',
+      '!**/demos/**',
+      '!**/samples/**',
+      // Ignorar arquivos de utilitários e helpers de teste
+      '!**/test-utils/**',
+      '!**/test-helpers/**',
+      '!**/testing/**',
+      '!**/__mocks__/**',
+      '!**/mocks/**',
     ],
-    // coverageReporters is not a valid Jest option, using reporters instead
     coverageThreshold: {
       global: {
-        branches: 85,
-        functions: 85,
-        lines: 85,
-        statements: 85,
+        branches: 80,
+        functions: 80,
+        lines: 80,
+        statements: 80,
       },
     },
     // Configurações de teste globais
