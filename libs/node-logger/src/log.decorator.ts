@@ -4,6 +4,9 @@ import { createPinoSink } from './pino-sink.js';
 import { createRedactor } from './redact.js';
 import type { LogEntry, LogOptions } from './types.js';
 
+// Import reflect-metadata for NestJS compatibility
+import 'reflect-metadata';
+
 const isPromise = (v: unknown): v is Promise<unknown> =>
   !!v && typeof v === 'object' && typeof (v as Promise<unknown>).then === 'function';
 
@@ -29,6 +32,49 @@ const defaultSink = createPinoSink({
   flushInterval: 5000,
 });
 
+/**
+ * Preserves existing metadata from other decorators (like NestJS decorators)
+ * This is crucial for framework compatibility
+ */
+function preserveMetadata(
+  target: object,
+  propertyKey: string | symbol,
+  newDescriptor: PropertyDescriptor
+): PropertyDescriptor {
+  // Get all existing metadata keys
+  const metadataKeys = Reflect.getMetadataKeys(target, propertyKey);
+
+  // Store existing metadata to restore later
+  const existingMetadata = new Map();
+  for (const key of metadataKeys) {
+    const value = Reflect.getMetadata(key, target, propertyKey);
+    existingMetadata.set(key, value);
+  }
+
+  // Create a clean PropertyDescriptor without conflicts
+  const preservedDescriptor: PropertyDescriptor = {
+    configurable: newDescriptor.configurable ?? true,
+    enumerable: newDescriptor.enumerable ?? false,
+    writable: newDescriptor.writable ?? true,
+    value: newDescriptor.value,
+  };
+
+  // Only add get/set if they exist and value is not present
+  if (newDescriptor.get && !newDescriptor.value) {
+    preservedDescriptor.get = newDescriptor.get;
+  }
+  if (newDescriptor.set && !newDescriptor.value) {
+    preservedDescriptor.set = newDescriptor.set;
+  }
+
+  // Restore existing metadata after creating the descriptor
+  for (const [key, value] of existingMetadata) {
+    Reflect.defineMetadata(key, value, target, propertyKey);
+  }
+
+  return preservedDescriptor;
+}
+
 export function Log(opts: LogOptions = {}) {
   const {
     level = 'info',
@@ -42,10 +88,10 @@ export function Log(opts: LogOptions = {}) {
 
   // Universal decorator that works with both general applications and NestJS
   return (
-    _target: Object,
+    target: object,
     propertyKey: string | symbol,
     descriptor: PropertyDescriptor
-  ): PropertyDescriptor | void => {
+  ): PropertyDescriptor | undefined => {
     // Handle case where descriptor is undefined (2-argument decorator)
     if (!descriptor) {
       return;
@@ -55,9 +101,11 @@ export function Log(opts: LogOptions = {}) {
     if (descriptor.value && typeof descriptor.value === 'function') {
       const original = descriptor.value;
 
-      // Create a new descriptor that preserves metadata for frameworks like NestJS
+      // Create a new descriptor that preserves all metadata for frameworks like NestJS
       const newDescriptor: PropertyDescriptor = {
-        ...descriptor,
+        configurable: descriptor.configurable,
+        enumerable: descriptor.enumerable,
+        writable: descriptor.writable,
         value: function (...args: unknown[]) {
           if (sampleRate < 1 && getSecureRandom() > sampleRate) {
             return original.apply(this, args);
@@ -104,7 +152,9 @@ export function Log(opts: LogOptions = {}) {
                     error: {
                       name: (err as Error)?.name ?? 'Error',
                       message: String((err as Error)?.message ?? err),
-                      ...((err as Error)?.stack && { stack: (err as Error).stack }),
+                      ...((err as Error)?.stack && {
+                        stack: (err as Error).stack,
+                      }),
                     },
                   };
                   sink(entry);
@@ -139,7 +189,8 @@ export function Log(opts: LogOptions = {}) {
         },
       };
 
-      return newDescriptor;
+      // Preserve all existing metadata and return the enhanced descriptor
+      return preserveMetadata(target, propertyKey, newDescriptor);
     }
 
     return descriptor;
