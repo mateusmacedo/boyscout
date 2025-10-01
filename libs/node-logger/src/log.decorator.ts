@@ -1,4 +1,6 @@
 import { randomBytes } from 'node:crypto';
+import { getCid } from './context.js';
+import { createPinoSink } from './pino-sink.js';
 import { createRedactor } from './redact.js';
 import type { LogEntry, LogOptions } from './types.js';
 
@@ -17,11 +19,17 @@ const getSecureRandom = (): number => {
 
 const defaultRedactor = createRedactor();
 
-const defaultSink = (e: LogEntry) => {
-  console.log('[LOG]', JSON.stringify(e));
-};
+// Create default Pino sink with sensible defaults
+const defaultSink = createPinoSink({
+  service: process.env.SERVICE_NAME || 'node-logger',
+  env: process.env.NODE_ENV || 'development',
+  version: process.env.SERVICE_VERSION || '1.0.0',
+  enableBackpressure: true,
+  bufferSize: 1000,
+  flushInterval: 5000,
+});
 
-export function Log(opts: LogOptions = {}): MethodDecorator {
+export function Log(opts: LogOptions = {}) {
   const {
     level = 'info',
     includeArgs = true,
@@ -29,10 +37,20 @@ export function Log(opts: LogOptions = {}): MethodDecorator {
     sampleRate = 1,
     redact = defaultRedactor,
     sink = defaultSink,
-    getCorrelationId,
+    getCorrelationId = getCid,
   } = opts;
 
-  return (_target, propertyKey, descriptor) => {
+  // Legacy decorator syntax for experimentalDecorators: true
+  return (
+    _target: any,
+    propertyKey: string | symbol,
+    descriptor?: PropertyDescriptor
+  ): PropertyDescriptor | undefined => {
+    // Handle case where descriptor is undefined (2-argument decorator)
+    if (!descriptor) {
+      return;
+    }
+
     // Only modify function descriptors
     if (descriptor.value && typeof descriptor.value === 'function') {
       const original = descriptor.value;
@@ -51,12 +69,11 @@ export function Log(opts: LogOptions = {}): MethodDecorator {
         const makeBase = (endTime: number) => {
           const timestamp = new Date().toISOString();
           return {
-            ts: timestamp,
+            timestamp: timestamp,
             level,
             scope: { className, methodName },
             correlationId: cid,
             durationMs: endTime - startTime,
-            timestamp,
           } as Omit<LogEntry, 'outcome'>;
         };
 

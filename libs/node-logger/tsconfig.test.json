@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.spec.json",
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "useDefineForClassFields": false
+  }
+}

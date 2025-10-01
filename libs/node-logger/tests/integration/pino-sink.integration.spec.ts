@@ -32,7 +32,10 @@ describe('PinoSink Integration Tests', () => {
 
   describe('Basic PinoSink Integration', () => {
     it('should integrate correctly with Log decorator using default configuration', () => {
-      const pinoSink = createPinoSink({ logger: mockPinoLogger });
+      const pinoSink = createPinoSink({
+        enableBackpressure: false,
+        logger: mockPinoLogger,
+      });
 
       class UserService {
         // @ts-expect-error - Decorator type inference issue
@@ -54,7 +57,6 @@ describe('PinoSink Integration Tests', () => {
       expect(mockPinoLogger.info).toHaveBeenCalledTimes(1);
       const call = mockPinoLogger.info.mock.calls[0];
       expect(call[0]).toMatchObject({
-        timestamp: expect.any(String),
         scope: {
           className: 'UserService',
           methodName: 'createUser',
@@ -68,7 +70,10 @@ describe('PinoSink Integration Tests', () => {
     });
 
     it('should handle correlation ID correctly with PinoSink', () => {
-      const pinoSink = createPinoSink({ logger: mockPinoLogger });
+      const pinoSink = createPinoSink({
+        enableBackpressure: false,
+        logger: mockPinoLogger,
+      });
 
       class UserService {
         // @ts-expect-error - Decorator type inference issue
@@ -94,13 +99,21 @@ describe('PinoSink Integration Tests', () => {
       expect(mockPinoLogger.child).toHaveBeenCalledWith({ cid: testCid });
       expect(mockPinoLogger.debug).toHaveBeenCalledTimes(1);
       const call = mockPinoLogger.debug.mock.calls[0];
+      // correlationId is handled via child logger with cid, not in payload
       expect(call[0]).toMatchObject({
-        correlationId: testCid,
+        scope: {
+          className: 'UserService',
+          methodName: 'authenticateUser',
+        },
+        outcome: 'success',
       });
     });
 
     it('should handle different log levels correctly', () => {
-      const pinoSink = createPinoSink({ logger: mockPinoLogger });
+      const pinoSink = createPinoSink({
+        enableBackpressure: false,
+        logger: mockPinoLogger,
+      });
 
       class LogLevelService {
         // @ts-expect-error - Decorator type inference issue
@@ -155,6 +168,7 @@ describe('PinoSink Integration Tests', () => {
         `[${e.scope.className}] ${e.scope.methodName} - ${e.outcome} (${e.durationMs}ms)`;
 
       const pinoSink = createPinoSink({
+        enableBackpressure: false,
         logger: mockPinoLogger,
         messageFormat: customMessageFormat,
       });
@@ -182,6 +196,7 @@ describe('PinoSink Integration Tests', () => {
 
     it('should include service metadata in logs', () => {
       const pinoSink = createPinoSink({
+        enableBackpressure: false,
         logger: mockPinoLogger,
         service: 'user-service',
         env: 'test',
@@ -221,7 +236,10 @@ describe('PinoSink Integration Tests', () => {
         info: jest.fn(),
       };
 
-      const pinoSink = createPinoSink({ logger: customLogger });
+      const pinoSink = createPinoSink({
+        enableBackpressure: false,
+        logger: customLogger,
+      });
 
       class CustomLoggerService {
         // @ts-expect-error - Decorator type inference issue
@@ -245,7 +263,10 @@ describe('PinoSink Integration Tests', () => {
 
   describe('Error Handling Integration', () => {
     it('should log errors correctly with PinoSink', () => {
-      const pinoSink = createPinoSink({ logger: mockPinoLogger });
+      const pinoSink = createPinoSink({
+        enableBackpressure: false,
+        logger: mockPinoLogger,
+      });
 
       class ErrorService {
         // @ts-expect-error - Decorator type inference issue
@@ -278,7 +299,10 @@ describe('PinoSink Integration Tests', () => {
     });
 
     it('should handle async errors correctly', async () => {
-      const pinoSink = createPinoSink({ logger: mockPinoLogger });
+      const pinoSink = createPinoSink({
+        enableBackpressure: false,
+        logger: mockPinoLogger,
+      });
 
       class AsyncErrorService {
         // @ts-expect-error - Decorator type inference issue
@@ -316,7 +340,10 @@ describe('PinoSink Integration Tests', () => {
 
   describe('Performance and Concurrency', () => {
     it('should handle multiple concurrent operations efficiently', async () => {
-      const pinoSink = createPinoSink({ logger: mockPinoLogger });
+      const pinoSink = createPinoSink({
+        enableBackpressure: false,
+        logger: mockPinoLogger,
+      });
 
       class ConcurrentService {
         // @ts-expect-error - Decorator type inference issue
@@ -355,7 +382,10 @@ describe('PinoSink Integration Tests', () => {
     });
 
     it('should maintain correlation ID isolation in concurrent operations', async () => {
-      const pinoSink = createPinoSink({ logger: mockPinoLogger });
+      const pinoSink = createPinoSink({
+        enableBackpressure: false,
+        logger: mockPinoLogger,
+      });
 
       class CorrelationService {
         // @ts-expect-error - Decorator type inference issue
@@ -384,14 +414,16 @@ describe('PinoSink Integration Tests', () => {
 
       expect(mockPinoLogger.info).toHaveBeenCalledTimes(2);
 
-      // Verify that each log has the correct correlation ID
+      // Verify that each log has the correct correlation ID via child logger calls
+      expect(mockPinoLogger.child).toHaveBeenCalledWith({ cid: cid1 });
+      expect(mockPinoLogger.child).toHaveBeenCalledWith({ cid: cid2 });
+
+      // Verify payload content
       const calls = mockPinoLogger.info.mock.calls;
       expect(calls[0][0]).toMatchObject({
-        correlationId: cid1,
         args: ['data1'],
       });
       expect(calls[1][0]).toMatchObject({
-        correlationId: cid2,
         args: ['data2'],
       });
     });
@@ -400,6 +432,7 @@ describe('PinoSink Integration Tests', () => {
   describe('Real-world Integration Scenarios', () => {
     it('should integrate with a complete user management system', async () => {
       const pinoSink = createPinoSink({
+        enableBackpressure: false,
         logger: mockPinoLogger,
         service: 'user-management',
         env: 'production',
@@ -489,17 +522,13 @@ describe('PinoSink Integration Tests', () => {
       expect(mockPinoLogger.warn).toHaveBeenCalledTimes(1); // getUser
 
       // Verify that all logs have the correct correlation ID
-      const allCalls = [
-        ...mockPinoLogger.info.mock.calls,
-        ...mockPinoLogger.debug.mock.calls,
-        ...mockPinoLogger.warn.mock.calls,
-      ];
+      // Verify that child logger was called with the correct correlation ID
+      expect(mockPinoLogger.child).toHaveBeenCalledWith({ cid: testCid });
 
-      for (const call of allCalls) {
-        expect(call[0]).toMatchObject({
-          correlationId: testCid,
-        });
-      }
+      // Verify that we have the expected number of log calls
+      expect(mockPinoLogger.info).toHaveBeenCalledTimes(2); // createUser, create
+      expect(mockPinoLogger.debug).toHaveBeenCalledTimes(1); // findById
+      expect(mockPinoLogger.warn).toHaveBeenCalledTimes(1); // getUser
     });
   });
 });

@@ -111,3 +111,5 @@ export const createTestLogEntry = (overrides: Partial<LogEntry> = {}) => ({
 
 // Global test timeout for async operations
 jest.setTimeout(10000);
+
+// No special configuration needed - tests will use the default Pino sink

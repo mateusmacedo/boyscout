@@ -15,9 +15,12 @@ pnpm add @boyscout/node-logger
 - **Decorators automáticos**: Logging automático de métodos com rastreamento de performance
 - **Correlação de requisições**: Sistema de correlation ID para rastreamento de requisições
 - **Redação de dados sensíveis**: Redação automática de senhas, tokens e dados pessoais
-- **Integração com Pino**: Sink configurável para logs estruturados
+- **Integração com Pino**: Sink padrão para logs estruturados com configurações otimizadas
 - **Suporte a Express e Fastify**: Middlewares e plugins para correlação de requisições
 - **TypeScript**: Tipagem completa para melhor experiência de desenvolvimento
+- **Otimizações de Performance**: Buffer inteligente e backpressure para picos de logs
+- **Monitoramento de Performance**: Métricas e alertas para análise de performance
+- **Configurações Pré-definidas**: Configurações otimizadas para diferentes cenários
 
 ## Utilização
 
@@ -43,13 +46,13 @@ class UserService {
 
 ### Configuração Avançada
 
-Para configurações mais avançadas, você pode usar o sink do Pino e redatores personalizados:
+Por padrão, o decorator `@Log` usa o sink do Pino com configurações otimizadas. Para configurações mais avançadas, você pode personalizar o sink do Pino e redatores:
 
 ```typescript
 import { Log, createPinoSink, createRedactor, getCid } from '@boyscout/node-logger';
 
-// Configurar o sink do Pino
-const pinoSink = createPinoSink({
+// O sink do Pino é usado por padrão, mas você pode personalizá-lo
+const customPinoSink = createPinoSink({
     service: "minha-aplicacao",
     env: "production",
     version: "1.0.0"
@@ -219,6 +222,147 @@ export class UserService {
     }
 }
 ```
+
+## Otimizações de Performance
+
+### Configurações Pré-definidas
+
+O pacote oferece configurações otimizadas para diferentes cenários:
+
+```typescript
+import { 
+  createPinoSink, 
+  HIGH_PERFORMANCE_CONFIG,
+  LOW_LATENCY_CONFIG,
+  EXTREME_MODE_CONFIG,
+  PRODUCTION_CONFIG 
+} from '@boyscout/node-logger';
+
+// Para aplicações com alto volume de logs
+const highPerfSink = createPinoSink(HIGH_PERFORMANCE_CONFIG);
+
+// Para aplicações que precisam de baixa latência
+const lowLatencySink = createPinoSink(LOW_LATENCY_CONFIG);
+
+// Para máxima performance (com risco de perda de logs)
+const extremeSink = createPinoSink(EXTREME_MODE_CONFIG);
+
+// Para produção com monitoramento
+const productionSink = createPinoSink(PRODUCTION_CONFIG);
+```
+
+### Configuração Personalizada
+
+```typescript
+import { createPinoSink } from '@boyscout/node-logger';
+
+const customSink = createPinoSink({
+  service: "my-service",
+  env: "production",
+  version: "1.0.0",
+  
+  // Otimizações de performance
+  enableBackpressure: true,        // Habilita buffer inteligente
+  enableAsyncDestination: true,    // Destino assíncrono
+  bufferSize: 2000,               // Tamanho do buffer
+  flushInterval: 3000,            // Intervalo de flush (ms)
+  maxBufferSize: 10000,           // Tamanho máximo do buffer
+  enablePerformanceMonitoring: true // Monitoramento de performance
+});
+```
+
+### Monitoramento de Performance
+
+```typescript
+import { PerformanceMonitor, PerformanceUtils } from '@boyscout/node-logger';
+
+// Monitor personalizado
+const monitor = new PerformanceMonitor({
+  maxBufferSize: 5000,
+  maxMemoryUsage: 100, // MB
+  maxProcessingTime: 50, // ms
+  maxDroppedLogs: 10,
+  minThroughput: 200 // logs per second
+});
+
+// Configurar alertas
+monitor.onAlert((alert) => {
+  console.error(`Performance Alert [${alert.severity}]: ${alert.message}`);
+  
+  if (alert.severity === 'critical') {
+    // Implementar ações de emergência
+    console.error('Critical performance issue detected!');
+  }
+});
+
+// Obter relatório de performance
+const report = monitor.getReport();
+console.log('Performance Report:', report);
+
+// Monitoramento global
+const globalMetrics = PerformanceUtils.getGlobalMetrics();
+const isHealthy = PerformanceUtils.isGlobalHealthy();
+```
+
+### Estratégias de Mitigação de Buffer
+
+#### 1. Buffer Inteligente com Backpressure
+
+```typescript
+const sink = createPinoSink({
+  enableBackpressure: true,
+  bufferSize: 1000,
+  flushInterval: 5000,
+  maxBufferSize: 5000
+});
+```
+
+#### 2. Flush Periódico
+
+```typescript
+// O sistema automaticamente faz flush baseado no intervalo configurado
+const sink = createPinoSink({
+  flushInterval: 3000, // Flush a cada 3 segundos
+  enableAsyncDestination: true
+});
+```
+
+#### 3. Monitoramento de Memória
+
+```typescript
+const monitor = new PerformanceMonitor({
+  maxMemoryUsage: 50, // MB
+  maxBufferSize: 2000
+});
+
+// O monitor automaticamente detecta problemas de memória
+monitor.onAlert((alert) => {
+  if (alert.type === 'high_memory_usage') {
+    console.warn('High memory usage detected, consider reducing buffer size');
+  }
+});
+```
+
+#### 4. Configuração por Ambiente
+
+```typescript
+import { getConfigForEnvironment } from '@boyscout/node-logger';
+
+// Configuração automática baseada no ambiente
+const config = getConfigForEnvironment(process.env.NODE_ENV);
+const sink = createPinoSink(config);
+```
+
+### Configurações Recomendadas por Cenário
+
+| Cenário | Configuração | Buffer Size | Flush Interval | Backpressure |
+|---------|-------------|-------------|----------------|--------------|
+| **Desenvolvimento** | `DEVELOPMENT_CONFIG` | 500 | 5000ms | ❌ |
+| **Produção** | `PRODUCTION_CONFIG` | 1500 | 4000ms | ✅ |
+| **Alta Performance** | `HIGH_PERFORMANCE_CONFIG` | 2000 | 3000ms | ✅ |
+| **Baixa Latência** | `LOW_LATENCY_CONFIG` | 100 | 1000ms | ❌ |
+| **Modo Extremo** | `EXTREME_MODE_CONFIG` | 5000 | 2000ms | ✅ |
+| **Picos de Tráfego** | `TRAFFIC_SPIKE_CONFIG` | 3000 | 2000ms | ✅ |
 
 ### Estrutura dos Logs Gerados
 

@@ -8,6 +8,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "useDefineForClassFields": false,
+    "downlevelIteration": true,
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -26,7 +27,7 @@
     "allowSyntheticDefaultImports": true
   },
   "include": [
-    "jest.config.cjs",
+    "jest.config.js",
     "jest.setup.ts",
     "tests/**/*.test.ts",
     "tests/**/*.spec.ts",

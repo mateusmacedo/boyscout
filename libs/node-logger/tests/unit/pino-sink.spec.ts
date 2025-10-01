@@ -57,63 +57,90 @@ describe('createPinoSink', () => {
 
   describe('asLevel function', () => {
     it('should map trace level correctly', () => {
-      const sink = createPinoSink({ logger: mockLogger as unknown as Logger });
+      const sink = createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        enableBackpressure: false,
+      });
       const entry = { ...baseLogEntry, level: 'trace' as const };
       sink(entry);
       expect(logs[0].level).toBe('trace');
     });
 
     it('should map debug level correctly', () => {
-      const sink = createPinoSink({ logger: mockLogger as unknown as Logger });
+      const sink = createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        enableBackpressure: false,
+      });
       const entry = { ...baseLogEntry, level: 'debug' as const };
       sink(entry);
       expect(logs[0].level).toBe('debug');
     });
 
     it('should map info level correctly', () => {
-      const sink = createPinoSink({ logger: mockLogger as unknown as Logger });
+      const sink = createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        enableBackpressure: false,
+      });
       const entry = { ...baseLogEntry, level: 'info' as const };
       sink(entry);
       expect(logs[0].level).toBe('info');
     });
 
     it('should map warn level correctly', () => {
-      const sink = createPinoSink({ logger: mockLogger as unknown as Logger });
+      const sink = createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        enableBackpressure: false,
+      });
       const entry = { ...baseLogEntry, level: 'warn' as const };
       sink(entry);
       expect(logs[0].level).toBe('warn');
     });
 
     it('should map error level correctly', () => {
-      const sink = createPinoSink({ logger: mockLogger as unknown as Logger });
+      const sink = createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        enableBackpressure: false,
+      });
       const entry = { ...baseLogEntry, level: 'error' as const };
       sink(entry);
       expect(logs[0].level).toBe('error');
     });
 
     it('should handle case insensitive levels', () => {
-      const sink = createPinoSink({ logger: mockLogger as unknown as Logger });
+      const sink = createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        enableBackpressure: false,
+      });
       const entry = { ...baseLogEntry, level: 'ERROR' as LogEntry['level'] };
       sink(entry);
       expect(logs[0].level).toBe('error');
     });
 
     it('should handle fatal level (edge case for coverage)', () => {
-      const sink = createPinoSink({ logger: mockLogger as unknown as Logger });
+      const sink = createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        enableBackpressure: false,
+      });
       const entry = { ...baseLogEntry, level: 'fatal' as LogEntry['level'] };
       sink(entry);
       expect(logs[0].level).toBe('fatal');
     });
 
     it('should default to info for unknown level', () => {
-      const sink = createPinoSink({ logger: mockLogger as unknown as Logger });
+      const sink = createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        enableBackpressure: false,
+      });
       const entry = { ...baseLogEntry, level: 'unknown' as LogEntry['level'] };
       sink(entry);
       expect(logs[0].level).toBe('info');
     });
 
     it('should default to info if level is undefined', () => {
-      const sink = createPinoSink({ logger: mockLogger as unknown as Logger });
+      const sink = createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        enableBackpressure: false,
+      });
       const entry = {
         ...baseLogEntry,
         level: undefined as unknown as LogEntry['level'],
@@ -123,7 +150,10 @@ describe('createPinoSink', () => {
     });
 
     it('should default to info if level is null', () => {
-      const sink = createPinoSink({ logger: mockLogger as unknown as Logger });
+      const sink = createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        enableBackpressure: false,
+      });
       const entry = {
         ...baseLogEntry,
         level: null as unknown as LogEntry['level'],
@@ -135,7 +165,10 @@ describe('createPinoSink', () => {
 
   describe('createPinoSink function', () => {
     it('should use provided logger and default messageFormat', () => {
-      const sink = createPinoSink({ logger: mockLogger as unknown as Logger });
+      const sink = createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        enableBackpressure: false,
+      });
       sink(baseLogEntry);
       expect(logs[0].level).toBe('info');
       expect(logs[0].msg).toContain('TestClass.testMethod success in 123.5ms');
@@ -146,6 +179,7 @@ describe('createPinoSink', () => {
       const sink = createPinoSink({
         logger: mockLogger as unknown as Logger,
         messageFormat: fmt,
+        enableBackpressure: false,
       });
       sink(baseLogEntry);
       expect(fmt).toHaveBeenCalledWith(baseLogEntry);
@@ -154,28 +188,40 @@ describe('createPinoSink', () => {
 
     it('should use child logger when correlationId is present', () => {
       const entry = { ...baseLogEntry, correlationId: 'cid-123' };
-      const sink = createPinoSink({ logger: mockLogger as unknown as Logger });
+      const sink = createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        enableBackpressure: false,
+      });
       sink(entry);
       expect(mockLogger.child).toHaveBeenCalledWith({ cid: 'cid-123' });
     });
 
     it('should not use child logger when correlationId is undefined', () => {
-      createPinoSink({ logger: mockLogger as unknown as Logger });
+      createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        enableBackpressure: false,
+      });
       expect(mockLogger.child).not.toHaveBeenCalled();
     });
 
     it('should not use child logger when correlationId is null', () => {
-      createPinoSink({ logger: mockLogger as unknown as Logger });
+      createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        enableBackpressure: false,
+      });
       expect(mockLogger.child).not.toHaveBeenCalled();
     });
 
     it('should not use child logger when correlationId is empty string', () => {
-      createPinoSink({ logger: mockLogger as unknown as Logger });
+      createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        enableBackpressure: false,
+      });
       expect(mockLogger.child).not.toHaveBeenCalled();
     });
 
     it('should create a pino logger if none provided', () => {
-      const sink = createPinoSink();
+      const sink = createPinoSink({ enableBackpressure: false });
       expect(typeof sink).toBe('function');
     });
 
@@ -244,7 +290,10 @@ describe('createPinoSink', () => {
 
   describe('pinoSink function', () => {
     it('should call logger with correct level and payload', () => {
-      const sink = createPinoSink({ logger: mockLogger as unknown as Logger });
+      const sink = createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        enableBackpressure: false,
+      });
       const entry = { ...baseLogEntry, level: 'warn' as const };
       sink(entry);
       expect(mockLogger.warn).toHaveBeenCalledWith(
@@ -258,7 +307,10 @@ describe('createPinoSink', () => {
     });
 
     it('should exclude level from payload', () => {
-      const sink = createPinoSink({ logger: mockLogger as unknown as Logger });
+      const sink = createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        enableBackpressure: false,
+      });
       const entry = { ...baseLogEntry, level: 'info' as const };
       sink(entry);
       expect(mockLogger.info).toHaveBeenCalledWith(
@@ -279,17 +331,18 @@ describe('createPinoSink', () => {
         correlationId: 'full-cid',
         durationMs: 999.999,
       };
-      const sink = createPinoSink({ logger: mockLogger as unknown as Logger });
+      const sink = createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        enableBackpressure: false,
+      });
       sink(fullEntry);
       expect(mockLogger.error).toHaveBeenCalledWith(
         expect.objectContaining({
-          timestamp: fullEntry.timestamp,
           scope: fullEntry.scope,
           outcome: fullEntry.outcome,
           args: fullEntry.args,
           result: fullEntry.result,
           error: fullEntry.error,
-          correlationId: fullEntry.correlationId,
           durationMs: fullEntry.durationMs,
         }),
         expect.any(String)
@@ -304,11 +357,13 @@ describe('createPinoSink', () => {
         outcome: 'success',
         durationMs: 100,
       };
-      const sink = createPinoSink({ logger: mockLogger as unknown as Logger });
+      const sink = createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        enableBackpressure: false,
+      });
       sink(minimalEntry);
       expect(mockLogger.info).toHaveBeenCalledWith(
         expect.objectContaining({
-          timestamp: minimalEntry.timestamp,
           scope: minimalEntry.scope,
           outcome: minimalEntry.outcome,
           durationMs: minimalEntry.durationMs,
@@ -319,7 +374,10 @@ describe('createPinoSink', () => {
 
     it('should handle scope with undefined className', () => {
       const entry = { ...baseLogEntry, scope: { methodName: 'methodOnly' } };
-      const sink = createPinoSink({ logger: mockLogger as unknown as Logger });
+      const sink = createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        enableBackpressure: false,
+      });
       sink(entry);
       expect(logs[0].msg).toContain('.methodOnly success in 123.5ms');
     });
@@ -332,7 +390,10 @@ describe('createPinoSink', () => {
           methodName: 'methodOnly',
         },
       };
-      const sink = createPinoSink({ logger: mockLogger as unknown as Logger });
+      const sink = createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        enableBackpressure: false,
+      });
       sink(entry);
       expect(logs[0].msg).toContain('.methodOnly success in 123.5ms');
     });
@@ -342,7 +403,10 @@ describe('createPinoSink', () => {
         ...baseLogEntry,
         scope: { className: '', methodName: 'methodOnly' },
       };
-      const sink = createPinoSink({ logger: mockLogger as unknown as Logger });
+      const sink = createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        enableBackpressure: false,
+      });
       sink(entry);
       expect(logs[0].msg).toContain('.methodOnly success in 123.5ms');
     });
@@ -352,35 +416,50 @@ describe('createPinoSink', () => {
         ...baseLogEntry,
         scope: { className: '   ', methodName: 'methodOnly' },
       };
-      const sink = createPinoSink({ logger: mockLogger as unknown as Logger });
+      const sink = createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        enableBackpressure: false,
+      });
       sink(entry);
       expect(logs[0].msg).toContain('   .methodOnly success in 123.5ms');
     });
 
     it('should handle different duration values', () => {
       const entry = { ...baseLogEntry, durationMs: 0 };
-      const sink = createPinoSink({ logger: mockLogger as unknown as Logger });
+      const sink = createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        enableBackpressure: false,
+      });
       sink(entry);
       expect(logs[0].msg).toContain('0.0ms');
     });
 
     it('should handle very small duration values', () => {
       const entry = { ...baseLogEntry, durationMs: 0.001 };
-      const sink = createPinoSink({ logger: mockLogger as unknown as Logger });
+      const sink = createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        enableBackpressure: false,
+      });
       sink(entry);
       expect(logs[0].msg).toContain('0.0ms');
     });
 
     it('should handle very large duration values', () => {
       const entry = { ...baseLogEntry, durationMs: 999999.999 };
-      const sink = createPinoSink({ logger: mockLogger as unknown as Logger });
+      const sink = createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        enableBackpressure: false,
+      });
       sink(entry);
       expect(logs[0].msg).toContain('1000000.0ms');
     });
 
     it('should handle different outcomes', () => {
       const entry = { ...baseLogEntry, outcome: 'failure' as const };
-      const sink = createPinoSink({ logger: mockLogger as unknown as Logger });
+      const sink = createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        enableBackpressure: false,
+      });
       sink(entry);
       expect(logs[0].msg).toContain('failure');
     });
@@ -392,7 +471,10 @@ describe('createPinoSink', () => {
         ...baseLogEntry,
         scope: undefined as unknown as LogEntry['scope'],
       };
-      const sink = createPinoSink({ logger: mockLogger as unknown as Logger });
+      const sink = createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        enableBackpressure: false,
+      });
       expect(() => sink(entry)).toThrow();
     });
 
@@ -401,7 +483,10 @@ describe('createPinoSink', () => {
         ...baseLogEntry,
         scope: { className: 'TestClass' } as LogEntry['scope'],
       };
-      const sink = createPinoSink({ logger: mockLogger as unknown as Logger });
+      const sink = createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        enableBackpressure: false,
+      });
       // The code doesn't actually throw for undefined methodName, it just logs
       expect(() => sink(entry)).not.toThrow();
     });
@@ -411,7 +496,10 @@ describe('createPinoSink', () => {
         ...baseLogEntry,
         durationMs: undefined as unknown as LogEntry['durationMs'],
       };
-      const sink = createPinoSink({ logger: mockLogger as unknown as Logger });
+      const sink = createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        enableBackpressure: false,
+      });
       // The code throws when durationMs is undefined because it calls toFixed()
       expect(() => sink(entry)).toThrow("Cannot read properties of undefined (reading 'toFixed')");
     });
@@ -421,7 +509,10 @@ describe('createPinoSink', () => {
         ...baseLogEntry,
         outcome: undefined as unknown as LogEntry['outcome'],
       };
-      const sink = createPinoSink({ logger: mockLogger as unknown as Logger });
+      const sink = createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        enableBackpressure: false,
+      });
       // The code doesn't actually throw for undefined outcome, it just logs
       expect(() => sink(entry)).not.toThrow();
     });

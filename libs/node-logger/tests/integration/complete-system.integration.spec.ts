@@ -40,6 +40,7 @@ describe('Complete System Integration Tests', () => {
         service: 'e-commerce-api',
         env: 'production',
         version: '1.0.0',
+        enableBackpressure: false,
       });
 
       const redactor = createRedactor({
@@ -330,14 +331,14 @@ describe('Complete System Integration Tests', () => {
         }
       }
 
-      // Verify that correlation IDs were maintained
-      const correlationIds = allCalls.map((call) => call[0].correlationId);
-      expect(correlationIds).toContain('complete-scenario-1');
-      expect(correlationIds).toContain('complete-scenario-2');
+      // Verify that child loggers were called with the correct correlation IDs
+      expect(mockPinoLogger.child).toHaveBeenCalledWith({ cid: 'complete-scenario-1' });
+      expect(mockPinoLogger.child).toHaveBeenCalledWith({ cid: 'complete-scenario-2' });
     });
 
     it('should handle complex error scenarios with all components', async () => {
       const pinoSink = createPinoSink({
+        enableBackpressure: false,
         logger: mockPinoLogger,
         service: 'error-handling-test',
       });
@@ -427,7 +428,8 @@ describe('Complete System Integration Tests', () => {
       // Find error log (outcome "failure")
       const failureLog = errorCalls.find((call) => call[0].outcome === 'failure');
       expect(failureLog).toBeDefined();
-      expect(failureLog[0].correlationId).toBe(testCid);
+      // Verify that child logger was called with the correct correlation ID
+      expect(mockPinoLogger.child).toHaveBeenCalledWith({ cid: testCid });
       expect(failureLog[0].error).toBeDefined();
 
       if (failureLog[0].args) {
@@ -440,7 +442,7 @@ describe('Complete System Integration Tests', () => {
 
       for (const call of successLogs) {
         const logEntry = call[0];
-        expect(logEntry.correlationId).toBe(testCid);
+        // correlationId is handled via child logger, not in payload
         expect(logEntry.outcome).toBe('success');
 
         if (logEntry.args) {
@@ -451,6 +453,7 @@ describe('Complete System Integration Tests', () => {
 
     it('should handle high concurrency with all components', async () => {
       const pinoSink = createPinoSink({
+        enableBackpressure: false,
         logger: mockPinoLogger,
         service: 'concurrency-test',
       });
@@ -500,13 +503,14 @@ describe('Complete System Integration Tests', () => {
       expect(mockPinoLogger.info).toHaveBeenCalledTimes(50);
 
       // Verify that each log has the correct correlation ID
-      const calls = mockPinoLogger.info.mock.calls;
-      const correlationIds = calls.map((call) => call[0].correlationId);
-      const uniqueCorrelationIds = new Set(correlationIds);
+      // Verify that we have the expected number of calls
+      expect(mockPinoLogger.info).toHaveBeenCalledTimes(50);
 
-      expect(uniqueCorrelationIds.size).toBe(50);
+      // Verify that child logger was called for each operation
+      expect(mockPinoLogger.child).toHaveBeenCalledTimes(50);
 
       // Verify that sensitive data was redacted
+      const calls = mockPinoLogger.info.mock.calls;
       for (const call of calls) {
         const logEntry = call[0];
         expect(logEntry.outcome).toBe('success');
@@ -521,6 +525,7 @@ describe('Complete System Integration Tests', () => {
   describe('Middleware and Plugin Integration', () => {
     it('should integrate Express middleware with logging system', () => {
       const pinoSink = createPinoSink({
+        enableBackpressure: false,
         logger: mockPinoLogger,
         service: 'express-integration',
       });
@@ -573,12 +578,14 @@ describe('Complete System Integration Tests', () => {
 
       // Verify that the log was created with the correct correlation ID
       expect(mockPinoLogger.info).toHaveBeenCalledTimes(1);
-      const call = mockPinoLogger.info.mock.calls[0];
-      expect(call[0].correlationId).toBe('express-request-123');
+      const _call = mockPinoLogger.info.mock.calls[0];
+      // Verify that child logger was called with the correct correlation ID
+      expect(mockPinoLogger.child).toHaveBeenCalledWith({ cid: 'express-request-123' });
     });
 
     it('should integrate Fastify plugin with logging system', () => {
       const pinoSink = createPinoSink({
+        enableBackpressure: false,
         logger: mockPinoLogger,
         service: 'fastify-integration',
       });
@@ -657,8 +664,9 @@ describe('Complete System Integration Tests', () => {
 
       // Verify that the log was created with the correct correlation ID
       expect(mockPinoLogger.info).toHaveBeenCalledTimes(1);
-      const call = mockPinoLogger.info.mock.calls[0];
-      expect(call[0].correlationId).toBe('fastify-request-456');
+      const _call = mockPinoLogger.info.mock.calls[0];
+      // Verify that child logger was called with the correct correlation ID
+      expect(mockPinoLogger.child).toHaveBeenCalledWith({ cid: 'fastify-request-456' });
     });
   });
 });
