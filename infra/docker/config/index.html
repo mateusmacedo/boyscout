@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boyscout - Infraestrutura de Desenvolvimento</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .service-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 4px solid #667eea;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+        
+        .service-card.main {
+            border-left-color: #4CAF50;
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+        }
+        
+        .service-card.auth {
+            border-left-color: #FF9800;
+        }
+        
+        .service-card.database {
+            border-left-color: #2196F3;
+        }
+        
+        .service-card.queue {
+            border-left-color: #9C27B0;
+        }
+        
+        .service-card.aws {
+            border-left-color: #FF5722;
+        }
+        
+        .service-card.proxy {
+            border-left-color: #607D8B;
+        }
+        
+        .service-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .service-description {
+            color: #666;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+        
+        .service-card.main .service-description {
+            color: rgba(255,255,255,0.9);
+        }
+        
+        .service-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .service-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.3s ease;
+            border: 1px solid #e9ecef;
+        }
+        
+        .service-link:hover {
+            background: #667eea;
+            color: white;
+            transform: translateX(4px);
+        }
+        
+        .service-card.main .service-link {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border-color: rgba(255,255,255,0.3);
+        }
+        
+        .service-card.main .service-link:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4CAF50;
+            margin-right: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .footer {
+            text-align: center;
+            color: white;
+            opacity: 0.8;
+            margin-top: 3rem;
+        }
+        
+        .icon {
+            font-size: 1.2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Boyscout Infrastructure</h1>
+            <p>Ambiente de desenvolvimento completo com todos os serviços</p>
+        </div>
+        
+        <div class="services-grid">
+            <!-- Aplicação Principal -->
+            <div class="service-card main">
+                <div class="service-title">
+                    <span class="status-indicator"></span>
+                    <span class="icon">🎯</span>
+                    NestJS API
+                </div>
+                <div class="service-description">
+                    Aplicação principal com endpoints REST, autenticação e logging estruturado.
+                </div>
+                <div class="service-links">
+                    <a href="/api" class="service-link">
+                        <span class="icon">🏠</span>
+                        API Principal
+                    </a>
+                    <a href="/api/health" class="service-link">
+                        <span class="icon">❤️</span>
+                        Health Check
+                    </a>
+                    <a href="/api/users" class="service-link">
+                        <span class="icon">👥</span>
+                        Usuários
+                    </a>
+                    <a href="/api/analytics" class="service-link">
+                        <span class="icon">📊</span>
+                        Analytics
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Keycloak -->
+            <div class="service-card auth">
+                <div class="service-title">
+                    <span class="status-indicator"></span>
+                    <span class="icon">🔐</span>
+                    Keycloak
+                </div>
+                <div class="service-description">
+                    Servidor de identidade e gerenciamento de acesso (IAM).
+                </div>
+                <div class="service-links">
+                    <a href="/auth" class="service-link" target="_blank">
+                        <span class="icon">🌐</span>
+                        Console Admin
+                    </a>
+                    <a href="/auth/realms/boyscout" class="service-link" target="_blank">
+                        <span class="icon">🏰</span>
+                        Realm Boyscout
+                    </a>
+                </div>
+            </div>
+            
+            <!-- PostgreSQL -->
+            <div class="service-card database">
+                <div class="service-title">
+                    <span class="status-indicator"></span>
+                    <span class="icon">🐘</span>
+                    PostgreSQL
+                </div>
+                <div class="service-description">
+                    Banco de dados principal com múltiplas bases de dados.
+                </div>
+                <div class="service-links">
+                    <a href="postgresql://boyscout:boyscout123@localhost:5432/boyscout" class="service-link">
+                        <span class="icon">🔗</span>
+                        Connection String
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Redis -->
+            <div class="service-card database">
+                <div class="service-title">
+                    <span class="status-indicator"></span>
+                    <span class="icon">⚡</span>
+                    Redis
+                </div>
+                <div class="service-description">
+                    Cache em memória para sessões e dados temporários.
+                </div>
+                <div class="service-links">
+                    <a href="redis://localhost:6379" class="service-link">
+                        <span class="icon">🔗</span>
+                        Connection String
+                    </a>
+                </div>
+            </div>
+            
+            <!-- RabbitMQ -->
+            <div class="service-card queue">
+                <div class="service-title">
+                    <span class="status-indicator"></span>
+                    <span class="icon">🐰</span>
+                    RabbitMQ
+                </div>
+                <div class="service-description">
+                    Message broker para comunicação assíncrona entre serviços.
+                </div>
+                <div class="service-links">
+                    <a href="/rabbitmq" class="service-link" target="_blank">
+                        <span class="icon">🎛️</span>
+                        Management UI
+                    </a>
+                    <a href="amqp://boyscout:boyscout123@localhost:5672/boyscout" class="service-link">
+                        <span class="icon">🔗</span>
+                        Connection String
+                    </a>
+                </div>
+            </div>
+            
+            <!-- LocalStack -->
+            <div class="service-card aws">
+                <div class="service-title">
+                    <span class="status-indicator"></span>
+                    <span class="icon">☁️</span>
+                    LocalStack
+                </div>
+                <div class="service-description">
+                    Emulador AWS para desenvolvimento local (S3, SQS, Lambda, etc.).
+                </div>
+                <div class="service-links">
+                    <a href="/aws" class="service-link" target="_blank">
+                        <span class="icon">🌐</span>
+                        AWS Console
+                    </a>
+                    <a href="http://localhost:4566" class="service-link" target="_blank">
+                        <span class="icon">🔗</span>
+                        Direct Access
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Nginx -->
+            <div class="service-card proxy">
+                <div class="service-title">
+                    <span class="status-indicator"></span>
+                    <span class="icon">🔄</span>
+                    Nginx
+                </div>
+                <div class="service-description">
+                    Reverse proxy e load balancer para todos os serviços.
+                </div>
+                <div class="service-links">
+                    <a href="/health" class="service-link">
+                        <span class="icon">❤️</span>
+                        Health Check
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>🚀 Boyscout Development Infrastructure - Todos os serviços rodando em Docker</p>
+        </div>
+    </div>
+</body>
+</html>
