@@ -114,6 +114,160 @@
       "cache": true
     }
   },
+  "targets": {
+    "infra:docker:up": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd infra/docker && make up",
+        "cwd": "{workspaceRoot}"
+      },
+      "description": "Inicia toda a infraestrutura Docker"
+    },
+    "infra:docker:down": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd infra/docker && make down",
+        "cwd": "{workspaceRoot}"
+      },
+      "description": "Para toda a infraestrutura Docker"
+    },
+    "infra:docker:status": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd infra/docker && make status",
+        "cwd": "{workspaceRoot}"
+      },
+      "description": "Mostra status da infraestrutura Docker"
+    },
+    "infra:docker:logs": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd infra/docker && make logs",
+        "cwd": "{workspaceRoot}"
+      },
+      "description": "Mostra logs da infraestrutura Docker"
+    },
+    "infra:docker:test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd infra/docker && make test",
+        "cwd": "{workspaceRoot}"
+      },
+      "description": "Testa conectividade da infraestrutura Docker"
+    },
+    "infra:docker:backup": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd infra/docker && make backup",
+        "cwd": "{workspaceRoot}"
+      },
+      "description": "Faz backup da infraestrutura Docker"
+    },
+    "infra:docker:cleanup": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd infra/docker && make cleanup",
+        "cwd": "{workspaceRoot}"
+      },
+      "description": "Limpa containers e redes órfãs"
+    },
+    "infra:k3d:up": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd infra/k3d && make up",
+        "cwd": "{workspaceRoot}"
+      },
+      "description": "Cria o cluster k3d e registry local"
+    },
+    "infra:k3d:down": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd infra/k3d && make down",
+        "cwd": "{workspaceRoot}"
+      },
+      "description": "Remove cluster e registry"
+    },
+    "infra:k3d:start": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd infra/k3d && make start",
+        "cwd": "{workspaceRoot}"
+      },
+      "description": "Inicializa cluster k3d existente"
+    },
+    "infra:k3d:status": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd infra/k3d && make status",
+        "cwd": "{workspaceRoot}"
+      },
+      "description": "Mostra status do cluster k3d"
+    },
+    "infra:k3d:deploy": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd infra/k3d && make deploy-boyscout",
+        "cwd": "{workspaceRoot}"
+      },
+      "description": "Deploy da infraestrutura completa no k3d"
+    },
+    "infra:k3d:setup-ingress": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd infra/k3d && make setup-centralized-ingress",
+        "cwd": "{workspaceRoot}"
+      },
+      "description": "Configura ingress centralizado"
+    },
+    "infra:k3d:test-ingress": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd infra/k3d && make test-centralized-ingress",
+        "cwd": "{workspaceRoot}"
+      },
+      "description": "Testa ingress centralizado"
+    },
+    "infra:k3d:build-images": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd infra/k3d && make build-images",
+        "cwd": "{workspaceRoot}"
+      },
+      "description": "Constrói e faz push das imagens Docker"
+    },
+    "infra:k3d:test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd infra/k3d && make test-all",
+        "cwd": "{workspaceRoot}"
+      },
+      "description": "Executa todos os testes da infraestrutura k3d"
+    },
+    "infra:k3d:generate-passwords": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd infra/k3d && make generate-passwords",
+        "cwd": "{workspaceRoot}"
+      },
+      "description": "Gera senhas seguras automaticamente"
+    },
+    "infra:dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "nx infra:docker:up && nx infra:docker:status",
+        "cwd": "{workspaceRoot}"
+      },
+      "description": "Inicia ambiente de desenvolvimento completo"
+    },
+    "infra:prod": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "nx infra:k3d:up && nx infra:k3d:deploy && nx infra:k3d:setup-ingress",
+        "cwd": "{workspaceRoot}"
+      },
+      "description": "Inicia ambiente de produção simulado"
+    }
+  },
   "generators": {
     "@nx/js:library": {
       "publishable": true,
