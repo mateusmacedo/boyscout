@@ -124,7 +124,7 @@ importers:
   apps/nestjs-api:
     dependencies:
       '@boyscout/node-logger':
-        specifier: workspace:*
+        specifier: 1.3.0
         version: link:../../libs/node-logger
       '@nestjs/common':
         specifier: ^10.0.2
