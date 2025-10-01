@@ -40,7 +40,7 @@ export function Log(opts: LogOptions = {}) {
     getCorrelationId = getCid,
   } = opts;
 
-  // Legacy decorator syntax for experimentalDecorators: true
+  // Universal decorator that works with both general applications and NestJS
   return (
     _target: unknown,
     propertyKey: string | symbol,
@@ -54,87 +54,92 @@ export function Log(opts: LogOptions = {}) {
     // Only modify function descriptors
     if (descriptor.value && typeof descriptor.value === 'function') {
       const original = descriptor.value;
-      (descriptor as { value: (...args: unknown[]) => unknown }).value = function (
-        ...args: unknown[]
-      ) {
-        if (sampleRate < 1 && getSecureRandom() > sampleRate) {
-          return original.apply(this, args);
-        }
 
-        const className = (this as { constructor?: { name?: string } })?.constructor?.name;
-        const methodName = String(propertyKey);
-        const cid = getCorrelationId?.();
-
-        const startTime = performance.now();
-        const makeBase = (endTime: number) => {
-          const timestamp = new Date().toISOString();
-          return {
-            timestamp: timestamp,
-            level,
-            scope: { className, methodName },
-            correlationId: cid,
-            durationMs: endTime - startTime,
-          } as Omit<LogEntry, 'outcome'>;
-        };
-
-        try {
-          const ret = original.apply(this, args);
-
-          if (isPromise(ret)) {
-            return ret
-              .then((value) => {
-                const endTime = performance.now();
-                const entry: LogEntry = {
-                  ...makeBase(endTime),
-                  outcome: 'success',
-                  ...(includeArgs && { args: redact(args) as unknown[] }),
-                  ...(includeResult && { result: redact(value) }),
-                };
-                sink(entry);
-                return value;
-              })
-              .catch((err) => {
-                const endTime = performance.now();
-                const entry: LogEntry = {
-                  ...makeBase(endTime),
-                  outcome: 'failure',
-                  ...(includeArgs && { args: redact(args) as unknown[] }),
-                  error: {
-                    name: (err as Error)?.name ?? 'Error',
-                    message: String((err as Error)?.message ?? err),
-                    ...((err as Error)?.stack && { stack: (err as Error).stack }),
-                  },
-                };
-                sink(entry);
-                throw err;
-              });
+      // Create a new descriptor that preserves metadata for frameworks like NestJS
+      const newDescriptor: PropertyDescriptor = {
+        ...descriptor,
+        value: function (...args: unknown[]) {
+          if (sampleRate < 1 && getSecureRandom() > sampleRate) {
+            return original.apply(this, args);
           }
 
-          const endTime = performance.now();
-          const entry: LogEntry = {
-            ...makeBase(endTime),
-            outcome: 'success',
-            ...(includeArgs && { args: redact(args) as unknown[] }),
-            ...(includeResult && { result: redact(ret) }),
+          const className = (this as { constructor?: { name?: string } })?.constructor?.name;
+          const methodName = String(propertyKey);
+          const cid = getCorrelationId?.();
+
+          const startTime = performance.now();
+          const makeBase = (endTime: number) => {
+            const timestamp = new Date().toISOString();
+            return {
+              timestamp: timestamp,
+              level,
+              scope: { className, methodName },
+              correlationId: cid,
+              durationMs: endTime - startTime,
+            } as Omit<LogEntry, 'outcome'>;
           };
-          sink(entry);
-          return ret;
-        } catch (err: unknown) {
-          const endTime = performance.now();
-          const entry: LogEntry = {
-            ...makeBase(endTime),
-            outcome: 'failure',
-            ...(includeArgs && { args: redact(args) as unknown[] }),
-            error: {
-              name: (err as Error)?.name ?? 'Error',
-              message: String((err as Error)?.message ?? err),
-              ...((err as Error)?.stack && { stack: (err as Error).stack }),
-            },
-          };
-          sink(entry);
-          throw err;
-        }
+
+          try {
+            const ret = original.apply(this, args);
+
+            if (isPromise(ret)) {
+              return ret
+                .then((value) => {
+                  const endTime = performance.now();
+                  const entry: LogEntry = {
+                    ...makeBase(endTime),
+                    outcome: 'success',
+                    ...(includeArgs && { args: redact(args) as unknown[] }),
+                    ...(includeResult && { result: redact(value) }),
+                  };
+                  sink(entry);
+                  return value;
+                })
+                .catch((err) => {
+                  const endTime = performance.now();
+                  const entry: LogEntry = {
+                    ...makeBase(endTime),
+                    outcome: 'failure',
+                    ...(includeArgs && { args: redact(args) as unknown[] }),
+                    error: {
+                      name: (err as Error)?.name ?? 'Error',
+                      message: String((err as Error)?.message ?? err),
+                      ...((err as Error)?.stack && { stack: (err as Error).stack }),
+                    },
+                  };
+                  sink(entry);
+                  throw err;
+                });
+            }
+
+            const endTime = performance.now();
+            const entry: LogEntry = {
+              ...makeBase(endTime),
+              outcome: 'success',
+              ...(includeArgs && { args: redact(args) as unknown[] }),
+              ...(includeResult && { result: redact(ret) }),
+            };
+            sink(entry);
+            return ret;
+          } catch (err: unknown) {
+            const endTime = performance.now();
+            const entry: LogEntry = {
+              ...makeBase(endTime),
+              outcome: 'failure',
+              ...(includeArgs && { args: redact(args) as unknown[] }),
+              error: {
+                name: (err as Error)?.name ?? 'Error',
+                message: String((err as Error)?.message ?? err),
+                ...((err as Error)?.stack && { stack: (err as Error).stack }),
+              },
+            };
+            sink(entry);
+            throw err;
+          }
+        },
       };
+
+      return newDescriptor;
     }
 
     return descriptor;
