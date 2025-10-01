@@ -22,5 +22,8 @@
     "type": "git",
     "url": "git+https://github.com/mmanjos/boyscout.git",
     "directory": "libs/biome"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

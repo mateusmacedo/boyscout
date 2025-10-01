@@ -1,6 +1,6 @@
 {
   "name": "@boyscout/tsconfig",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "TypeScript configuration presets for modern Node.js projects",
   "main": "base.json",
   "files": [
@@ -16,9 +16,7 @@
   ],
   "author": "Mateus Macedo Dos Anjos<macedodosanjosmateus@gmail.com>",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/mmanjos/boyscout.git",
-    "directory": "libs/tsconfig"
+  "publishConfig": {
+    "access": "public"
   }
 }
