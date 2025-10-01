@@ -1,6 +1,6 @@
 {
   "name": "@boyscout/tsconfig",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "TypeScript configuration presets for modern Node.js projects",
   "main": "base.json",
   "files": [
