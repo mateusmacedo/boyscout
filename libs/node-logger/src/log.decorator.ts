@@ -42,10 +42,10 @@ export function Log(opts: LogOptions = {}) {
 
   // Universal decorator that works with both general applications and NestJS
   return (
-    _target: unknown,
+    _target: Object,
     propertyKey: string | symbol,
-    descriptor?: PropertyDescriptor
-  ): PropertyDescriptor | undefined => {
+    descriptor: PropertyDescriptor
+  ): PropertyDescriptor | void => {
     // Handle case where descriptor is undefined (2-argument decorator)
     if (!descriptor) {
       return;

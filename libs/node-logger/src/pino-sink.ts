@@ -51,6 +51,10 @@ export interface PinoSinkOptions {
   flushInterval?: number;
 }
 
+// Default configuration constants
+const DEFAULT_BUFFER_SIZE = 1000;
+const DEFAULT_FLUSH_INTERVAL = 5000;
+
 type LevelName = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal';
 const asLevel = (lvl: string | undefined): LevelName => {
   switch ((lvl ?? 'info').toLowerCase()) {
@@ -80,8 +84,8 @@ class LogBuffer {
   private onFlush: (entries: LogEntry[]) => void;
 
   constructor(
-    maxSize: number = 1000,
-    flushInterval: number = 5000,
+    maxSize: number = DEFAULT_BUFFER_SIZE,
+    flushInterval: number = DEFAULT_FLUSH_INTERVAL,
     onFlush: (entries: LogEntry[]) => void
   ) {
     this.maxSize = maxSize;
@@ -173,7 +177,22 @@ export function createPinoSink(opts: PinoSinkOptions = {}) {
     });
 
   // Buffer options with defaults
-  const { enableBackpressure = true, bufferSize = 1000, flushInterval = 5000 } = opts;
+  // TODO: In next major version, change default to false for backward compatibility
+  const {
+    enableBackpressure = true,
+    bufferSize = DEFAULT_BUFFER_SIZE,
+    flushInterval = DEFAULT_FLUSH_INTERVAL,
+  } = opts;
+
+  // Emit deprecation warning for default behavior
+  if (enableBackpressure && opts.enableBackpressure === undefined) {
+    console.warn(
+      '[boyscout-logger] DEPRECATION WARNING: enableBackpressure defaults to true. ' +
+        'This may cause unexpected behavior for existing users. ' +
+        'Explicitly set enableBackpressure: false to disable buffering, or enableBackpressure: true to acknowledge this behavior. ' +
+        'In the next major version, the default will change to false for better backward compatibility.'
+    );
+  }
 
   // Create buffer for backpressure mitigation
   let logBuffer: LogBuffer | null = null;

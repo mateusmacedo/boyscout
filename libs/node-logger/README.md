@@ -425,9 +425,37 @@ Em caso de erro, o log incluirá:
 | `env` | `string` | `process.env.NODE_ENV` | Ambiente |
 | `version` | `string` | `'1.0.0'` | Versão do serviço |
 | `messageFormat` | `function` | Padrão | Formato da mensagem |
-| `enableBackpressure` | `boolean` | `true` | Habilita buffer inteligente |
+| `enableBackpressure` | `boolean` | `true` | Habilita buffer inteligente ⚠️ **DEPRECATED** |
 | `bufferSize` | `number` | `1000` | Tamanho do buffer |
 | `flushInterval` | `number` | `5000` | Intervalo de flush (ms) |
+
+## ⚠️ Aviso de Deprecação
+
+**IMPORTANTE**: A opção `enableBackpressure` tem comportamento padrão que pode causar comportamento inesperado para usuários existentes.
+
+### Comportamento Atual
+- `enableBackpressure` padrão: `true` (com buffer)
+- **Problema**: Usuários existentes podem não esperar logs em buffer
+- **Solução**: Explicitamente defina `enableBackpressure: false` para comportamento síncrono
+
+### Migração Recomendada
+```typescript
+// ❌ Comportamento inesperado (logs em buffer)
+const sink = createPinoSink();
+
+// ✅ Comportamento explícito e previsível
+const sink = createPinoSink({
+  enableBackpressure: false  // Logs síncronos
+});
+
+// ✅ Ou aceite o comportamento de buffer
+const sink = createPinoSink({
+  enableBackpressure: true   // Logs em buffer (explícito)
+});
+```
+
+### Próxima Versão Major
+Na próxima versão major, o padrão mudará para `false` para melhor compatibilidade com versões anteriores.
 
 ## Fallback e Compatibilidade
 

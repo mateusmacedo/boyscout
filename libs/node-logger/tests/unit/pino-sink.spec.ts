@@ -465,6 +465,73 @@ describe('createPinoSink', () => {
     });
   });
 
+  describe('backpressure behavior and deprecation warnings', () => {
+    let consoleWarnSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+    });
+
+    afterEach(() => {
+      consoleWarnSpy.mockRestore();
+    });
+
+    it('should emit deprecation warning when enableBackpressure is not explicitly set', () => {
+      createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        // enableBackpressure not specified - should trigger warning
+      });
+
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('[boyscout-logger] DEPRECATION WARNING')
+      );
+    });
+
+    it('should not emit deprecation warning when enableBackpressure is explicitly set to true', () => {
+      createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        enableBackpressure: true,
+      });
+
+      expect(consoleWarnSpy).not.toHaveBeenCalled();
+    });
+
+    it('should not emit deprecation warning when enableBackpressure is explicitly set to false', () => {
+      createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        enableBackpressure: false,
+      });
+
+      expect(consoleWarnSpy).not.toHaveBeenCalled();
+    });
+
+    it('should use buffering when enableBackpressure is true (default behavior)', () => {
+      const sink = createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        enableBackpressure: true,
+      });
+
+      const entry = { ...baseLogEntry, level: 'info' as const };
+      sink(entry);
+
+      // With buffering enabled, logs should be buffered and not immediately logged
+      expect(mockLogger.info).not.toHaveBeenCalled();
+    });
+
+    it('should not use buffering when enableBackpressure is false', () => {
+      const sink = createPinoSink({
+        logger: mockLogger as unknown as Logger,
+        enableBackpressure: false,
+      });
+
+      const entry = { ...baseLogEntry, level: 'info' as const };
+      sink(entry);
+
+      // With buffering disabled, logs should be immediately logged
+      expect(mockLogger.info).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe('edge cases and error handling', () => {
     it('should handle undefined scope', () => {
       const entry = {
