@@ -1,5 +1,6 @@
 import { Log } from '@boyscout/node-logger';
 import { Injectable } from '@nestjs/common';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class AppService {
@@ -43,7 +44,7 @@ export class AppService {
   processUserData(userData: { name: string; email: string; password: string; cardNumber: string }) {
     // Dados sensíveis são automaticamente redatados pelo redator padrão da lib
     return {
-      id: Math.random().toString(36).substr(2, 9),
+      id: randomUUID(),
       name: userData.name,
       email: userData.email,
     };
