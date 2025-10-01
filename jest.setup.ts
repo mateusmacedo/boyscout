@@ -3,11 +3,30 @@
 process.env.TZ = 'UTC';
 
 // Console configurations to reduce noise in tests
-const originalConsoleError = console.error;
-const originalConsoleWarn = console.warn;
-const originalConsoleLog = console.log;
+// Store original console methods in a way that avoids redeclaration issues
+interface GlobalWithConsole {
+  __originalConsole?: {
+    error: typeof console.error;
+    warn: typeof console.warn;
+    log: typeof console.log;
+  };
+}
+
+const storeOriginalConsole = () => {
+  const globalWithConsole = global as GlobalWithConsole;
+  if (!globalWithConsole.__originalConsole) {
+    globalWithConsole.__originalConsole = {
+      error: console.error,
+      warn: console.warn,
+      log: console.log,
+    };
+  }
+  return globalWithConsole.__originalConsole;
+};
 
 beforeAll(() => {
+  const originalConsole = storeOriginalConsole();
+
   // Suppress specific warnings that are not relevant for Node.js libraries
   console.error = (...args: Parameters<typeof console.error>) => {
     if (
@@ -16,7 +35,7 @@ beforeAll(() => {
     ) {
       return;
     }
-    originalConsoleError.call(console, ...args);
+    originalConsole.error.call(console, ...args);
   };
 
   console.warn = (...args: Parameters<typeof console.warn>) => {
@@ -26,7 +45,7 @@ beforeAll(() => {
     ) {
       return;
     }
-    originalConsoleWarn.call(console, ...args);
+    originalConsole.warn.call(console, ...args);
   };
 
   // Suppress logs during tests unless explicitly needed
@@ -34,9 +53,10 @@ beforeAll(() => {
 });
 
 afterAll(() => {
-  console.error = originalConsoleError;
-  console.warn = originalConsoleWarn;
-  console.log = originalConsoleLog;
+  const originalConsole = storeOriginalConsole();
+  console.error = originalConsole.error;
+  console.warn = originalConsole.warn;
+  console.log = originalConsole.log;
 });
 
 // Global timeout configurations
