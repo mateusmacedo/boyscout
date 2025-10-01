@@ -45,7 +45,7 @@
     "local-registry:stop": "nx local-registry --stop",
     "publish": "nx release publish"
   },
-  "private": false,
+  "private": true,
   "config": {
     "commitizen": {
       "path": "cz-conventional-changelog"
