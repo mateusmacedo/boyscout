@@ -1,7 +1,6 @@
-import { getJestProjectsAsync } from '@nx/jest';
-import type { Config } from 'jest';
+const { getJestProjectsAsync } = require('@nx/jest');
 
-export default async (): Promise<Config> => ({
+module.exports = async () => ({
   projects: await getJestProjectsAsync(),
   // Global configurations for all projects
   coverageDirectory: '<rootDir>/coverage',
@@ -22,7 +21,7 @@ export default async (): Promise<Config> => ({
     '!**/*.spec.{ts,tsx}',
     '!**/*.test.{ts,tsx}',
   ],
-  coverageReporters: ['text', 'lcov', 'html', 'json'],
+  coverageReporters: ['text', 'lcov', 'html'],
   coverageThreshold: {
     global: {
       branches: 80,
@@ -49,15 +48,4 @@ export default async (): Promise<Config> => ({
   moduleFileExtensions: ['ts', 'js', 'html'],
   // Transform ignore patterns for ESM modules
   transformIgnorePatterns: ['node_modules/(?!(pino|@elastic/ecs-pino-format)/)'],
-  // Test configuration
-  testTimeout: 10000,
-  bail: 1, // Stop on first failure
-  verbose: true,
-  // Retry configuration for flaky tests
-  // retryTimes: 2, // Not available in Jest 29
-  // Cache configuration
-  cacheDirectory: '<rootDir>/.jest-cache',
-  // Clear mocks between tests
-  clearMocks: true,
-  restoreMocks: true,
 });

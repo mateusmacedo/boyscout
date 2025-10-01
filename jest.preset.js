@@ -1,7 +1,8 @@
 const nxPreset = require('@nx/jest/preset').default;
 const { createJestConfig } = require('./jest.config.base');
 
-module.exports = {
+/** @type {import('jest').Config} */
+const jestConfig = {
   ...nxPreset,
   // Additional preset configurations
   testEnvironment: 'node',
@@ -37,6 +38,9 @@ module.exports = {
   transformIgnorePatterns: ['node_modules/(?!(pino|@elastic/ecs-pino-format)/)'],
   // Setup files
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
-  // Export helper function for project-specific configs
-  createJestConfig,
 };
+
+module.exports = jestConfig;
+
+// Export helper function for project-specific configs
+module.exports.createJestConfig = createJestConfig;

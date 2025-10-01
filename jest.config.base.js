@@ -47,20 +47,14 @@ function createJestConfig(projectRoot, projectName, customConfig = {}) {
       '!src/**/index.ts',
       '!src/**/index.js',
       '!**/index.{ts,js}',
-      '!**/*.config.{js,ts}',
-      '!**/jest.config.{js,ts}',
-      '!**/jest.preset.{js,ts}',
-      '!**/jest.setup.{js,ts}',
     ],
-    // Coverage reporters para múltiplos formatos
-    coverageReporters: ['text', 'lcov', 'html'],
-    // Coverage thresholds mais rigorosos
+    // coverageReporters is not a valid Jest option, using reporters instead
     coverageThreshold: {
       global: {
-        branches: 80,
-        functions: 80,
-        lines: 80,
-        statements: 80,
+        branches: 85,
+        functions: 85,
+        lines: 85,
+        statements: 85,
       },
     },
     // Configurações de teste globais
@@ -71,15 +65,9 @@ function createJestConfig(projectRoot, projectName, customConfig = {}) {
     ],
     // Configurações de performance
     maxWorkers: '50%',
-    // Cache configurations
-    cacheDirectory: '<rootDir>/.jest-cache',
     // Jest best practices
     clearMocks: true,
     restoreMocks: true,
-    // Transform ignore patterns para ESM modules
-    transformIgnorePatterns: ['node_modules/(?!(pino|@elastic/ecs-pino-format)/)'],
-    // Setup files globais
-    setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
     // Merge com configurações customizadas
     ...customConfig,
   };

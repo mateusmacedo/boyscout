@@ -9,7 +9,7 @@ const originalConsoleLog = console.log;
 
 beforeAll(() => {
   // Suppress specific warnings that are not relevant for Node.js libraries
-  console.error = (...args: unknown[]) => {
+  console.error = (...args: Parameters<typeof console.error>) => {
     if (
       typeof args[0] === 'string' &&
       (args[0].includes('Warning:') || args[0].includes('DeprecationWarning'))
@@ -19,7 +19,7 @@ beforeAll(() => {
     originalConsoleError.call(console, ...args);
   };
 
-  console.warn = (...args: unknown[]) => {
+  console.warn = (...args: Parameters<typeof console.warn>) => {
     if (
       typeof args[0] === 'string' &&
       (args[0].includes('Warning:') || args[0].includes('DeprecationWarning'))
