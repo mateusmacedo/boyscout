@@ -52,4 +52,24 @@ export class AppController {
   ) {
     return this.appService.processUserData(userData);
   }
+
+  @Post('complex')
+  @Log({
+    level: 'debug',
+    includeArgs: true,
+    includeResult: true,
+  })
+  processComplex(@Body() data: Record<string, unknown>) {
+    return this.appService.processComplexData(data);
+  }
+
+  @Post('validate')
+  @Log({
+    level: 'warn',
+    includeArgs: true,
+    includeResult: false,
+  })
+  validate(@Body() input: Record<string, unknown>) {
+    return this.appService.validateInput(input);
+  }
 }

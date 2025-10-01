@@ -16,9 +16,14 @@ async function bootstrap() {
     app.setGlobalPrefix(globalPrefix);
 
     const port = process.env.PORT || 3000;
+    const serviceName = process.env.SERVICE_NAME || 'nestjs-api';
+    const serviceVersion = process.env.SERVICE_VERSION || '1.0.0';
+
     await app.listen(port);
 
-    logger.log(`🚀 Application is running on: http://localhost:${port}/${globalPrefix}`);
+    logger.log(
+      `🚀 ${serviceName} v${serviceVersion} is running on: http://localhost:${port}/${globalPrefix}`
+    );
   } catch (error) {
     logger.error('Failed to start application', (error as Error).stack);
     process.exit(1);

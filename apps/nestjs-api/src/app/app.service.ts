@@ -48,4 +48,39 @@ export class AppService {
       email: userData.email,
     };
   }
+
+  @Log({
+    level: 'debug',
+    includeArgs: true,
+    includeResult: true,
+  })
+  async processComplexData(data: Record<string, unknown>) {
+    // Simula processamento complexo com logging detalhado
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    const result = {
+      processed: true,
+      timestamp: new Date().toISOString(),
+      dataSize: JSON.stringify(data).length,
+    };
+
+    return result;
+  }
+
+  @Log({
+    level: 'warn',
+    includeArgs: true,
+    includeResult: false,
+  })
+  validateInput(input: Record<string, unknown>) {
+    if (!input || typeof input !== 'object') {
+      throw new Error('Invalid input provided');
+    }
+
+    if (input.password && typeof input.password === 'string' && input.password.length < 8) {
+      throw new Error('Password must be at least 8 characters long');
+    }
+
+    return { valid: true };
+  }
 }

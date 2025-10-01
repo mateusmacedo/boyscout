@@ -41,10 +41,8 @@ describe('AppService', () => {
   });
 
   describe('getDataWithError', () => {
-    it('should throw an error', async () => {
-      await expect(service.getDataWithError()).rejects.toThrow(
-        'Simulated error for logging demonstration'
-      );
+    it('should throw an error', () => {
+      expect(() => service.getDataWithError()).toThrow('Simulated error for logging demonstration');
     });
   });
 
