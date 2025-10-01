@@ -85,3 +85,5 @@ config.local.*
 # Build artifacts
 *.tgz
 *.tar.gz
+playwright-report
+test-results

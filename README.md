@@ -1,14 +1,15 @@
 # @boyscout/source
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+[![Nx logo](https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png)](https://nx.dev)
 
-✨ **Boyscout Workspace** - Monorepo com packages reutilizáveis para projetos modernos ✨.
+✨ **Boyscout Workspace** - Monorepo com packages reutilizáveis para projetos modernos ✨
 
 Workspace Nx com bibliotecas padronizadas para desenvolvimento JavaScript/TypeScript, incluindo configurações de linting, formatação, logging e TypeScript.
 
 ## 📦 Packages Disponíveis
 
 ### @boyscout/biome
+
 Configuração padronizada do Biome para linting e formatação de projetos JavaScript/TypeScript.
 
 ```bash
@@ -16,6 +17,7 @@ pnpm add -D @boyscout/biome
 ```
 
 ### @boyscout/node-logger
+
 Biblioteca de logging estruturado com decorators automáticos, correlação de requisições e redação de dados sensíveis.
 
 ```bash
@@ -23,147 +25,124 @@ pnpm add @boyscout/node-logger
 ```
 
 ### @boyscout/tsconfig
+
 Configurações TypeScript padronizadas para projetos Node.js modernos.
 
 ```bash
 pnpm add -D @boyscout/tsconfig
 ```
 
-## 🚀 Desenvolvimento
+## 🚀 Início Rápido
 
-### Comandos Principais
+### Instalação e Setup
 
 ```bash
 # Instalar dependências
 pnpm install
 
-# Executar linting e formatação
-pnpm run check:fix
-
-# Executar testes
-pnpm run test
-
-# Build de todos os packages
-pnpm run build
-
-# Visualizar grafo de dependências
-pnpm run graph
+# Verificar workspace
+npx nx graph
 ```
 
-### Release e Versionamento
+### Comandos Essenciais
 
 ```bash
-# Release completo (versionamento + changelog + publicação)
+# Desenvolvimento
+pnpm run test             # Executar testes
+pnpm run test:watch       # Testes em modo watch
+pnpm run check:fix        # Linting e formatação
+
+# Build e Release
+pnpm run build            # Build de todos os packages
+pnpm run release          # Release completo
+pnpm run release:dry-run  # Verificar release (recomendado)
+
+# Utilitários
+pnpm run graph            # Visualizar grafo de dependências
+pnpm run typecheck        # Type-checking
+```
+
+## 🛠️ Desenvolvimento
+
+### Comandos por Projeto
+
+```bash
+# Build
+npx nx build @boyscout/biome
+npx nx build @boyscout/node-logger
+npx nx build @boyscout/tsconfig
+
+# Testes
+npx nx test @boyscout/node-logger
+npx nx test @boyscout/node-logger --coverage
+
+# Lint
+npx nx lint @boyscout/biome
+npx nx lint @boyscout/node-logger
+
+# Type-checking
+npx nx typecheck @boyscout/node-logger
+```
+
+### Comandos Afetados (Otimizado)
+
+```bash
+# Executar apenas em projetos alterados
+npx nx affected -t build test lint
+npx nx affected:graph     # Ver grafo de afetados
+```
+
+### Gerar Nova Biblioteca
+
+```bash
+npx nx g @nx/js:lib libs/nova-lib --publishable --importPath=@boyscout/nova-lib
+```
+
+## 📋 Release e Versionamento
+
+O workspace utiliza **Nx Release** com versionamento independente baseado em **Conventional Commits**.
+
+### Comandos Básicos
+
+```bash
+# Release completo
 pnpm run release
 
-# Apenas versionamento
-pnpm run version
+# Verificar o que será feito (recomendado primeiro)
+pnpm run release:dry-run
 
-# Apenas changelog
-pnpm run changelog
-
-# Apenas publicação
-pnpm run publish
+# Comandos independentes
+pnpm run version    # Apenas versionamento
+pnpm run changelog  # Apenas changelog
+pnpm run publish    # Apenas publicação
 ```
 
-## 📋 Generate a library
+### Fluxo Básico
 
-```sh
-npx nx g @nx/js:lib packages/pkg1 --publishable --importPath=@my-org/pkg1
+1. **Fazer commits** com conventional commits
+2. **Verificar** com `pnpm run release:dry-run`
+3. **Executar** `pnpm run release`
+
+### Release por Projeto
+
+```bash
+# Projeto específico
+nx release version --projects=@boyscout/biome --dry-run
+nx release version --projects=@boyscout/biome
+
+# Múltiplos projetos
+nx release version --projects=@boyscout/biome,@boyscout/utils
+
+# Versionamento específico
+nx release version --projects=@boyscout/biome --specifier=patch
+nx release version --projects=@boyscout/biome --specifier=minor
+nx release version --projects=@boyscout/biome --specifier=major
 ```
 
-## Run tasks
+## 📚 Documentação Detalhada
 
-To build the library use:
-
-```sh
-npx nx build pkg1
-```
-
-To run any task with Nx use:
-
-```sh
-npx nx <target> <project-name>
-```
-
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
-
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Versioning and releasing
-
-To version and release the library use
-
-```
-npx nx release
-```
-
-Pass `--dry-run` to see what would happen without actually releasing the library.
-
-[Learn more about Nx release &raquo;](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Keep TypeScript project references up to date
-
-Nx automatically updates TypeScript [project references](https://www.typescriptlang.org/docs/handbook/project-references.html) in `tsconfig.json` files to ensure they remain accurate based on your project dependencies (`import` or `require` statements). This sync is automatically done when running tasks such as `build` or `typecheck`, which require updated references to function correctly.
-
-To manually trigger the process to sync the project graph dependencies information to the TypeScript project references, run the following command:
-
-```sh
-npx nx sync
-```
-
-You can enforce that the TypeScript project references are always in the correct state when running in CI by adding a step to your CI job configuration that runs the following command:
-
-```sh
-npx nx sync:check
-```
-
-[Learn more about nx sync](https://nx.dev/reference/nx-commands#sync)
-
-## Set up CI!
-
-### Step 1
-
-To connect to Nx Cloud, run the following command:
-
-```sh
-npx nx connect
-```
-
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
-
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-### Step 2
-
-Use the following command to configure a CI workflow for your workspace:
-
-```sh
-npx nx g ci-workflow
-```
-
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Install Nx Console
-
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
-
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Useful links
-
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/nx-api/js?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- **[DEVELOPMENT.md](./DEVELOPMENT.md)** - Guia completo de desenvolvimento
+- **[RELEASE.md](./RELEASE.md)** - Referência rápida para release
+- [Documentação oficial do Nx](https://nx.dev)
+- [Conventional Commits](https://www.conventionalcommits.org/)
+- [Semantic Versioning](https://semver.org/)

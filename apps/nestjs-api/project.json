@@ -1,0 +1,65 @@
+{
+  "name": "nestjs-api",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/nestjs-api/src",
+  "projectType": "application",
+  "tags": ["type:app", "scope:api"],
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "webpack-cli build",
+        "args": ["node-env=production"]
+      },
+      "configurations": {
+        "development": {
+          "args": ["node-env=development"]
+        }
+      }
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "defaultConfiguration": "development",
+      "dependsOn": ["build"],
+      "options": {
+        "command": "node dist/apps/nestjs-api/main.js",
+        "cwd": "."
+      },
+      "configurations": {
+        "development": {
+          "command": "node dist/apps/nestjs-api/main.js"
+        },
+        "production": {
+          "command": "node dist/apps/nestjs-api/main.js"
+        }
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "options": {
+        "jestConfig": "apps/nestjs-api/jest.config.ts",
+        "passWithNoTests": true
+      }
+    },
+    "e2e": {
+      "executor": "@nx/playwright:playwright",
+      "options": {
+        "config": "apps/nestjs-api/playwright.config.ts"
+      }
+    },
+    "e2e:ui": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "playwright test --ui --config=apps/nestjs-api/playwright.config.ts",
+        "cwd": "."
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "biome check apps/nestjs-api",
+        "cwd": "."
+      }
+    }
+  }
+}

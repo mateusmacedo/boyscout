@@ -61,7 +61,7 @@ Crie um arquivo `biome.json` na raiz do seu projeto:
 
 #### Correctness
 - `noUnusedVariables`: error
-- `noUnusedImports`: error  
+- `noUnusedImports`: error
 - `noUndeclaredVariables`: error
 - `noUnusedFunctionParameters`: warn
 
@@ -96,16 +96,16 @@ Crie um arquivo `biome.json` na raiz do seu projeto:
 
 ```bash
 # Verificar problemas
-npx biome check .
+pnpx biome check .
 
 # Corrigir automaticamente
-npx biome check --write .
+pnpx biome check --write .
 
 # Apenas formatação
-npx biome format --write .
+pnpx biome format --write .
 
 # Apenas linting
-npx biome lint --write .
+pnpx biome lint --write .
 ```
 
 ## 🔧 Integração com Workspace

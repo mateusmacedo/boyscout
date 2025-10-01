@@ -4,7 +4,8 @@
     "emitDeclarationOnly": false,
     "declaration": true,
     "declarationMap": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "rootDir": "src"
   },
   "include": ["src/**/*"],
   "exclude": ["**/*.spec.ts", "**/*.test.ts"]

@@ -184,7 +184,7 @@ async secure(...) { ... }
 
 - **Ciclos/estruturas profundas:** `redactor` trata `[Circular]` e `maxDepth`.
 
-- **Sink padrão**: `console.log("[LOG]", JSON.stringify(e))` quando não especificado.
+- **Sink padrão**: `console.log(JSON.stringify(e))` quando não especificado.
 
 ## 6. Segurança e Privacidade
 

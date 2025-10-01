@@ -1,95 +1,103 @@
-# Nx Release - Versionamento e Changelog
+# Release e Versionamento - Referência Rápida
 
-Configuração simplificada para versionamento e changelog usando Nx Release.
+> **📖 [README.md](./README.md)** - Visão geral e comandos essenciais do workspace.
 
-## 🚀 Comandos Básicos
+Referência rápida para comandos de release e versionamento usando **Nx Release** com **Conventional Commits**.
 
-### Release Completo
+## 🚀 Comandos Essenciais
+
 ```bash
-# Release completo (versionamento + changelog + publicação)
+# Release completo (recomendado)
 pnpm run release
 
-# Verificar o que será feito (recomendado primeiro)
-pnpm run release:dry-run
-```
-
-### Comandos Independentes
-```bash
-# Apenas versionamento
-pnpm run version
-
-# Apenas changelog
-pnpm run changelog
-
-# Apenas publicação
-pnpm run publish
-```
-
-## 📋 Como Funciona
-
-1. **Conventional Commits**: O versionamento é baseado nos commits seguindo o padrão conventional commits
-2. **Versionamento Automático**: Detecta automaticamente se é major, minor ou patch
-3. **Changelog Automático**: Gera changelog baseado nos commits
-4. **Independente**: Cada projeto é versionado independentemente
-
-## 🎯 Exemplos de Uso
-
-### Fluxo Básico - Todos os Projetos
-```bash
-# 1. Fazer commits com conventional commits
-git commit -m "feat: adicionar nova funcionalidade"
-
-# 2. Verificar o que será versionado
+# Verificar o que será feito (sempre execute primeiro)
 pnpm run release:dry-run
 
-# 3. Executar o release
-pnpm run release
+# Comandos independentes
+pnpm run version    # Apenas versionamento
+pnpm run changelog  # Apenas changelog
+pnpm run publish    # Apenas publicação
 ```
 
-### Fluxo Independente - Projeto Específico
-```bash
-# 1. Fazer commit que afeta apenas um projeto
-git commit -m "feat(biome): adicionar nova funcionalidade"
+## 📋 Fluxo Básico
 
-# 2. Verificar versionamento apenas desse projeto
+1. **Fazer commits** com conventional commits
+2. **Verificar** com `pnpm run release:dry-run`
+3. **Executar** `pnpm run release`
+
+## 🎯 Release por Projeto
+
+### Projeto Específico
+
+```bash
+# Verificar versionamento
 nx release version --projects=@boyscout/biome --dry-run
 
-# 3. Versionar apenas esse projeto
+# Executar versionamento
 nx release version --projects=@boyscout/biome
 
-# 4. Gerar changelog apenas para esse projeto
+# Gerar changelog
 nx release changelog 1.1.0 --projects=@boyscout/biome
 ```
 
-### Fluxo Independente - Múltiplos Projetos
+### Múltiplos Projetos
+
 ```bash
-# 1. Fazer commits que afetam múltiplos projetos
-git commit -m "feat(biome): adicionar funcionalidade A"
-git commit -m "fix(utils): corrigir bug B"
+# Verificar múltiplos projetos
+nx release version --projects=@boyscout/biome,@boyscout/node-logger --dry-run
 
-# 2. Versionar apenas os projetos afetados
-nx release version --projects=@boyscout/biome,@boyscout/utils --dry-run
-
-# 3. Executar versionamento
-nx release version --projects=@boyscout/biome,@boyscout/utils
+# Executar versionamento
+nx release version --projects=@boyscout/biome,@boyscout/node-logger
 ```
 
-### Versionamento com Versão Específica
+### Versionamento Específico
+
 ```bash
-# Versionar com bump específico
+# Bump específico
 nx release version --projects=@boyscout/biome --specifier=patch
 nx release version --projects=@boyscout/biome --specifier=minor
 nx release version --projects=@boyscout/biome --specifier=major
 ```
 
+## 📝 Conventional Commits
+
+### Tipos de Commit
+
+- `feat:` - Nova funcionalidade (minor)
+- `fix:` - Correção de bug (patch)
+- `feat!:` - Breaking change (major)
+- `docs:` - Documentação (não afeta versão)
+- `style:` - Formatação (não afeta versão)
+- `refactor:` - Refatoração (não afeta versão)
+- `test:` - Testes (não afeta versão)
+- `chore:` - Manutenção (não afeta versão)
+
+### Exemplos
+
+```bash
+# Nova funcionalidade
+git commit -m "feat: adicionar validação de email"
+
+# Correção de bug
+git commit -m "fix: corrigir erro de parsing JSON"
+
+# Breaking change
+git commit -m "feat!: remover API deprecated"
+
+# Com escopo
+git commit -m "feat(biome): adicionar regra de linting"
+git commit -m "fix(node-logger): corrigir decorator de logging"
+```
+
 ## ⚙️ Configuração
 
-A configuração mínima está no `nx.json`:
+A configuração está no `nx.json`:
 
 ```json
 {
   "release": {
     "projects": ["*"],
+    "projectsRelationship": "independent",
     "version": {
       "conventionalCommits": true
     }
@@ -97,28 +105,10 @@ A configuração mínima está no `nx.json`:
 }
 ```
 
-## 💡 Dicas
+## 🔗 Recursos
 
-- **Sempre use `--dry-run` primeiro** para verificar as mudanças
-- **Use conventional commits** para versionamento automático
-- **Cada projeto é versionado independentemente** baseado em suas mudanças
-- **O changelog é gerado automaticamente** baseado nos commits
-
-## 🔧 Comandos Avançados
-
-```bash
-# Versionamento com opções específicas
-nx release version --projects=lib1 --specifier=minor --dry-run
-
-# Changelog com range específico
-nx release changelog --from=v1.0.0 --to=HEAD
-
-# Publicação com configurações específicas
-nx release publish
-```
-
-## 📚 Recursos
-
+- **[README.md](./README.md)** - Visão geral e comandos essenciais
+- **[DEVELOPMENT.md](./DEVELOPMENT.md)** - Guia completo de desenvolvimento
 - [Documentação oficial do Nx Release](https://20.nx.dev/features/manage-releases)
 - [Conventional Commits](https://www.conventionalcommits.org/)
 - [Semantic Versioning](https://semver.org/)
