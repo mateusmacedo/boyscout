@@ -1,6 +1,6 @@
 {
   "name": "@boyscout/biome",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Biome configuration preset for modern JavaScript/TypeScript projects",
   "main": "biome.json",
   "files": [
