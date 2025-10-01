@@ -63,9 +63,7 @@
     },
     {
       "plugin": "@nx/playwright/plugin",
-      "options": {
-        "targetName": "e2e"
-      }
+      "exclude": ["apps/nestjs-api/**/*"]
     },
     {
       "plugin": "@nx/eslint/plugin",

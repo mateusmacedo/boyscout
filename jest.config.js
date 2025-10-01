@@ -17,11 +17,12 @@ module.exports = async () => ({
     '!**/*.spec.{ts,tsx}',
     '!**/*.test.{ts,tsx}',
     // Ignorar arquivos de configuração
-    '!**/*.config.{js,ts}',
-    '!**/*.setup.{js,ts}',
+    '!**/*.config.{js,ts,cjs,mjs}',
+    '!**/*.setup.{js,ts,cjs,mjs}',
     '!**/jest.config.*',
     '!**/jest.setup.*',
     '!**/jest.preset.*',
+    '!**/jest.base.*',
     '!**/vite.config.*',
     '!**/webpack.config.*',
     '!**/rollup.config.*',
@@ -64,14 +65,8 @@ module.exports = async () => ({
     '!**/mocks/**',
   ],
   coverageReporters: ['text', 'lcov', 'html'],
-  coverageThreshold: {
-    global: {
-      branches: 80,
-      functions: 80,
-      lines: 80,
-      statements: 80,
-    },
-  },
+  // Thresholds são definidos por projeto individual (apps/*/jest.config.ts, libs/*/jest.config.ts)
+  // para permitir requisitos específicos por módulo
   // Performance configurations
   maxWorkers: '50%',
   // Environment configurations
