@@ -19,8 +19,8 @@ pnpm add @boyscout/node-logger
 - **Suporte a Express e Fastify**: Middlewares e plugins para correlação de requisições
 - **TypeScript**: Tipagem completa para melhor experiência de desenvolvimento
 - **Otimizações de Performance**: Buffer inteligente e backpressure para picos de logs
-- **Monitoramento de Performance**: Métricas e alertas para análise de performance
-- **Configurações Pré-definidas**: Configurações otimizadas para diferentes cenários
+- **Graceful Shutdown**: Limpeza automática de buffers e flush de logs no encerramento
+- **Fallback Inteligente**: Funciona mesmo sem Pino instalado (modo mock)
 
 ## Utilização
 
@@ -90,8 +90,8 @@ class UserService {
 | `includeResult` | `boolean` | `false` | Incluir resultado do método no log |
 | `sampleRate` | `number` | `1` | Taxa de amostragem (0-1) |
 | `redact` | `function` | Redator padrão | Função para redação de dados sensíveis |
-| `sink` | `function` | `console.log` | Função para processar os logs |
-| `getCorrelationId` | `function` | `undefined` | Função para obter ID de correlação |
+| `sink` | `function` | Sink Pino padrão | Função para processar os logs |
+| `getCorrelationId` | `function` | `getCid` | Função para obter ID de correlação |
 
 ### Redação de Dados Sensíveis
 
@@ -139,6 +139,13 @@ export class AppModule {
             .forRoutes('*');
     }
 }
+
+// Ou em aplicação Express pura
+import express from 'express';
+import { CorrelationIdMiddleware } from '@boyscout/node-logger';
+
+const app = express();
+app.use(CorrelationIdMiddleware);
 ```
 
 ### Integração com Fastify
@@ -148,13 +155,20 @@ Para aplicações Fastify, use o plugin de correlação:
 ```typescript
 import { correlationIdPlugin } from '@boyscout/node-logger';
 
-// No seu main.ts
+// No seu main.ts (NestJS com Fastify)
 const app = await NestFactory.create(AppModule, {
     logger: new Logger()
 });
 
 // Registrar o plugin
 app.getHttpAdapter().getInstance().register(correlationIdPlugin);
+
+// Ou em aplicação Fastify pura
+import Fastify from 'fastify';
+import { correlationIdPlugin } from '@boyscout/node-logger';
+
+const fastify = Fastify();
+fastify.register(correlationIdPlugin);
 ```
 
 ### Exemplo Completo de Integração
@@ -225,83 +239,40 @@ export class UserService {
 
 ## Otimizações de Performance
 
-### Configurações Pré-definidas
+### Configuração do Sink Pino
 
-O pacote oferece configurações otimizadas para diferentes cenários:
-
-```typescript
-import { 
-  createPinoSink, 
-  HIGH_PERFORMANCE_CONFIG,
-  LOW_LATENCY_CONFIG,
-  EXTREME_MODE_CONFIG,
-  PRODUCTION_CONFIG 
-} from '@boyscout/node-logger';
-
-// Para aplicações com alto volume de logs
-const highPerfSink = createPinoSink(HIGH_PERFORMANCE_CONFIG);
-
-// Para aplicações que precisam de baixa latência
-const lowLatencySink = createPinoSink(LOW_LATENCY_CONFIG);
-
-// Para máxima performance (com risco de perda de logs)
-const extremeSink = createPinoSink(EXTREME_MODE_CONFIG);
-
-// Para produção com monitoramento
-const productionSink = createPinoSink(PRODUCTION_CONFIG);
-```
-
-### Configuração Personalizada
+O pacote oferece configurações otimizadas para diferentes cenários através do `createPinoSink`:
 
 ```typescript
 import { createPinoSink } from '@boyscout/node-logger';
 
-const customSink = createPinoSink({
+// Configuração básica
+const basicSink = createPinoSink({
+  service: "my-service",
+  env: "production",
+  version: "1.0.0"
+});
+
+// Configuração com otimizações de performance
+const optimizedSink = createPinoSink({
   service: "my-service",
   env: "production",
   version: "1.0.0",
-  
+
   // Otimizações de performance
   enableBackpressure: true,        // Habilita buffer inteligente
-  enableAsyncDestination: true,    // Destino assíncrono
   bufferSize: 2000,               // Tamanho do buffer
   flushInterval: 3000,            // Intervalo de flush (ms)
-  maxBufferSize: 10000,           // Tamanho máximo do buffer
-  enablePerformanceMonitoring: true // Monitoramento de performance
-});
-```
 
-### Monitoramento de Performance
-
-```typescript
-import { PerformanceMonitor, PerformanceUtils } from '@boyscout/node-logger';
-
-// Monitor personalizado
-const monitor = new PerformanceMonitor({
-  maxBufferSize: 5000,
-  maxMemoryUsage: 100, // MB
-  maxProcessingTime: 50, // ms
-  maxDroppedLogs: 10,
-  minThroughput: 200 // logs per second
-});
-
-// Configurar alertas
-monitor.onAlert((alert) => {
-  console.error(`Performance Alert [${alert.severity}]: ${alert.message}`);
-  
-  if (alert.severity === 'critical') {
-    // Implementar ações de emergência
-    console.error('Critical performance issue detected!');
+  // Opções do Pino
+  loggerOptions: {
+    level: 'info',
+    base: {
+      service: 'my-service',
+      env: 'production'
+    }
   }
 });
-
-// Obter relatório de performance
-const report = monitor.getReport();
-console.log('Performance Report:', report);
-
-// Monitoramento global
-const globalMetrics = PerformanceUtils.getGlobalMetrics();
-const isHealthy = PerformanceUtils.isGlobalHealthy();
 ```
 
 ### Estratégias de Mitigação de Buffer
@@ -312,8 +283,7 @@ const isHealthy = PerformanceUtils.isGlobalHealthy();
 const sink = createPinoSink({
   enableBackpressure: true,
   bufferSize: 1000,
-  flushInterval: 5000,
-  maxBufferSize: 5000
+  flushInterval: 5000
 });
 ```
 
@@ -323,46 +293,37 @@ const sink = createPinoSink({
 // O sistema automaticamente faz flush baseado no intervalo configurado
 const sink = createPinoSink({
   flushInterval: 3000, // Flush a cada 3 segundos
-  enableAsyncDestination: true
+  enableBackpressure: true
 });
 ```
 
-#### 3. Monitoramento de Memória
+#### 3. Graceful Shutdown
+
+O sistema automaticamente registra handlers de processo para garantir que os logs sejam flushados antes do encerramento:
 
 ```typescript
-const monitor = new PerformanceMonitor({
-  maxMemoryUsage: 50, // MB
-  maxBufferSize: 2000
-});
+// O sistema automaticamente registra handlers para:
+// - beforeExit
+// - exit
+// - SIGINT
+// - SIGTERM
+// - SIGQUIT
 
-// O monitor automaticamente detecta problemas de memória
-monitor.onAlert((alert) => {
-  if (alert.type === 'high_memory_usage') {
-    console.warn('High memory usage detected, consider reducing buffer size');
-  }
-});
-```
+// Para limpeza manual em testes
+import { cleanupAllSinks } from '@boyscout/node-logger';
 
-#### 4. Configuração por Ambiente
-
-```typescript
-import { getConfigForEnvironment } from '@boyscout/node-logger';
-
-// Configuração automática baseada no ambiente
-const config = getConfigForEnvironment(process.env.NODE_ENV);
-const sink = createPinoSink(config);
+// Limpar todos os sinks registrados
+cleanupAllSinks();
 ```
 
 ### Configurações Recomendadas por Cenário
 
-| Cenário | Configuração | Buffer Size | Flush Interval | Backpressure |
-|---------|-------------|-------------|----------------|--------------|
-| **Desenvolvimento** | `DEVELOPMENT_CONFIG` | 500 | 5000ms | ❌ |
-| **Produção** | `PRODUCTION_CONFIG` | 1500 | 4000ms | ✅ |
-| **Alta Performance** | `HIGH_PERFORMANCE_CONFIG` | 2000 | 3000ms | ✅ |
-| **Baixa Latência** | `LOW_LATENCY_CONFIG` | 100 | 1000ms | ❌ |
-| **Modo Extremo** | `EXTREME_MODE_CONFIG` | 5000 | 2000ms | ✅ |
-| **Picos de Tráfego** | `TRAFFIC_SPIKE_CONFIG` | 3000 | 2000ms | ✅ |
+| Cenário | Buffer Size | Flush Interval | Backpressure | Descrição |
+|---------|-------------|----------------|--------------|-----------|
+| **Desenvolvimento** | 500 | 5000ms | ❌ | Logs imediatos para debug |
+| **Produção** | 1500 | 4000ms | ✅ | Balance entre performance e confiabilidade |
+| **Alta Performance** | 2000 | 3000ms | ✅ | Para aplicações com alto volume de logs |
+| **Baixa Latência** | 100 | 1000ms | ❌ | Para aplicações que precisam de logs imediatos |
 
 ### Estrutura dos Logs Gerados
 
@@ -385,6 +346,8 @@ O decorator gera logs estruturados com as seguintes informações:
     "version": "1.0.0"
 }
 ```
+
+**Nota**: Os campos `service`, `env` e `version` são adicionados pelo sink do Pino baseado na configuração fornecida.
 
 ### Tratamento de Erros
 
@@ -438,13 +401,118 @@ Em caso de erro, o log incluirá:
 - `createPinoSink(options?)`: Cria um sink do Pino para logs estruturados
 - `createRedactor(options?)`: Cria um redator para dados sensíveis
 - `getCid()`: Obtém o correlation ID atual do contexto
+- `ensureCid(incoming?)`: Gera ou valida um correlation ID
 - `CorrelationIdMiddleware`: Middleware para Express
 - `correlationIdPlugin`: Plugin para Fastify
+- `cleanupAllSinks()`: Limpa todos os sinks registrados (útil para testes)
 
 ### Tipos
 
-- `LogLevel`: Níveis de log disponíveis
+- `LogLevel`: Níveis de log disponíveis (`'trace' | 'debug' | 'info' | 'warn' | 'error'`)
 - `LogEntry`: Estrutura de entrada de log
 - `LogOptions`: Opções do decorator
 - `RedactorOptions`: Opções do redator
 - `PinoSinkOptions`: Opções do sink do Pino
+- `PinoLike`: Interface para loggers compatíveis com Pino
+
+### Opções do PinoSinkOptions
+
+| Opção | Tipo | Padrão | Descrição |
+|-------|------|--------|-----------|
+| `logger` | `PinoLike` | `undefined` | Logger Pino customizado |
+| `loggerOptions` | `LoggerOptions` | `{}` | Opções do Pino |
+| `service` | `string` | `'node-logger'` | Nome do serviço |
+| `env` | `string` | `process.env.NODE_ENV` | Ambiente |
+| `version` | `string` | `'1.0.0'` | Versão do serviço |
+| `messageFormat` | `function` | Padrão | Formato da mensagem |
+| `enableBackpressure` | `boolean` | `true` | Habilita buffer inteligente |
+| `bufferSize` | `number` | `1000` | Tamanho do buffer |
+| `flushInterval` | `number` | `5000` | Intervalo de flush (ms) |
+
+## Fallback e Compatibilidade
+
+### Modo Mock
+
+O pacote funciona mesmo sem o Pino instalado, usando um logger mock que não produz saída:
+
+```typescript
+// Funciona mesmo sem pino instalado
+import { Log } from '@boyscout/node-logger';
+
+class MyService {
+  @Log()
+  async myMethod() {
+    // Logs serão silenciosos se Pino não estiver disponível
+    return 'result';
+  }
+}
+```
+
+### Dependências Opcionais
+
+- **Pino**: Se não estiver instalado, o sistema usa um logger mock
+- **Express/Fastify**: Middlewares e plugins funcionam independentemente
+
+### Graceful Degradation
+
+O sistema degrada graciosamente em diferentes cenários:
+
+1. **Sem Pino**: Usa logger mock silencioso
+2. **Sem AsyncLocalStorage**: Correlation ID não funciona (retorna undefined)
+3. **Erro no redator**: Retorna `[Unredactable]` em vez de falhar
+4. **Erro no sink**: Logs são ignorados em vez de quebrar a aplicação
+
+## Testes
+
+### Executando os Testes
+
+```bash
+# Executar todos os testes
+pnpm test
+
+# Executar testes em modo watch
+pnpm test:watch
+
+# Executar testes com cobertura
+pnpm test:coverage
+```
+
+### Estrutura dos Testes
+
+Os testes cobrem:
+
+- **Decorator**: Funcionamento com métodos sync/async, sampleRate, redação
+- **Redator**: Mascaramento de dados sensíveis, tipos especiais, referências circulares
+- **Sink Pino**: Configuração, buffer, graceful shutdown
+- **Correlation ID**: Propagação via AsyncLocalStorage
+- **Middlewares/Plugins**: Express e Fastify
+- **Fallback**: Funcionamento sem Pino instalado
+
+### Exemplo de Teste
+
+```typescript
+import { Log, createRedactor } from '@boyscout/node-logger';
+
+describe('Log Decorator', () => {
+  it('should log method execution', () => {
+    const mockSink = jest.fn();
+
+    class TestService {
+      @Log({ sink: mockSink })
+      async testMethod() {
+        return 'result';
+      }
+    }
+
+    const service = new TestService();
+    await service.testMethod();
+
+    expect(mockSink).toHaveBeenCalledWith(
+      expect.objectContaining({
+        outcome: 'success',
+        scope: { className: 'TestService', methodName: 'testMethod' }
+      })
+    );
+  });
+});
+```
