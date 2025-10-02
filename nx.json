@@ -62,7 +62,8 @@
     {
       "plugin": "@nx/playwright/plugin",
       "exclude": ["apps/nestjs-api/**/*"]
-    }
+    },
+    "@nx-go/nx-go"
   ],
   "release": {
     "projects": ["*"],
