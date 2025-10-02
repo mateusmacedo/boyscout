@@ -1,5 +1,6 @@
 go 1.22.2
 
 use (
-    ./libs/go-logger
+	./apps/go-api
+	./libs/go-logger
 )
