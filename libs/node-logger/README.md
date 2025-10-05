@@ -13,6 +13,7 @@ pnpm add @boyscout/node-logger
 ## Funcionalidades
 
 - **Decorators automáticos**: Logging automático de métodos com rastreamento de performance
+- **Abstração de Logger**: Interface unificada para logging manual e automático
 - **Correlação de requisições**: Sistema de correlation ID para rastreamento de requisições
 - **Redação de dados sensíveis**: Redação automática de senhas, tokens e dados pessoais com padrões avançados
 - **Integração com Pino**: Sink padrão para logs estruturados com configurações otimizadas
@@ -24,6 +25,7 @@ pnpm add @boyscout/node-logger
 - **Redação Avançada**: Suporte a referências circulares, tipos especiais e composição de redatores
 - **Amostragem Segura**: Uso de criptografia para geração de números aleatórios
 - **Detecção de Tipos Especiais**: Tratamento automático de Streams, Buffers, Date e RegExp
+- **Logging Manual**: Logger independente para uso em middlewares, services e outros contextos
 
 ## Utilização
 
@@ -43,6 +45,117 @@ class UserService {
     async findUserById(id: string) {
         // Lógica do método
         return await this.userRepository.findById(id);
+    }
+}
+```
+
+### Abstração de Logger
+
+Agora você pode usar o logger independentemente do decorator para logging manual:
+
+```typescript
+import { createLogger, createPinoLogger, createConsoleLogger } from '@boyscout/node-logger';
+
+// Logger básico
+const logger = createLogger({
+    level: 'debug',
+    service: 'my-service',
+    env: 'development'
+});
+
+// Logging manual
+logger.info('User created', { userId: '123', email: 'user@example.com' });
+logger.error('Database connection failed', { error: 'Connection timeout' });
+
+// Logger com correlação de requisições
+const correlatedLogger = createLogger({
+    level: 'info',
+    service: 'api-service',
+    getCorrelationId: () => 'req-123-456'
+});
+
+correlatedLogger.info('Request processed', { 
+    method: 'POST', 
+    url: '/api/users',
+    statusCode: 201 
+});
+```
+
+### Logger em Middlewares
+
+```typescript
+import express from 'express';
+import { createLogger } from '@boyscout/node-logger';
+
+const app = express();
+const logger = createLogger({ service: 'middleware' });
+
+app.use((req, res, next) => {
+    const requestLogger = logger.child({
+        method: req.method,
+        url: req.url,
+        userAgent: req.get('User-Agent')
+    });
+    
+    requestLogger.info('Request received');
+    
+    res.on('finish', () => {
+        requestLogger.info('Request completed', {
+            statusCode: res.statusCode
+        });
+    });
+    
+    next();
+});
+```
+
+### Logger em Services
+
+```typescript
+import { createLogger } from '@boyscout/node-logger';
+
+class UserService {
+    private logger = createLogger({ service: 'UserService' });
+    
+    async createUser(userData: { name: string; email: string; password: string }) {
+        this.logger.info('Creating user', { email: userData.email });
+        
+        try {
+            // Simular criação de usuário
+            const user = { id: '123', ...userData };
+            
+            this.logger.info('User created successfully', { userId: user.id });
+            return user;
+        } catch (error) {
+            this.logger.error('Failed to create user', { 
+                error: error instanceof Error ? error.message : 'Unknown error',
+                email: userData.email 
+            });
+            throw error;
+        }
+    }
+}
+```
+
+### Logger com Decorator (Compatibilidade)
+
+```typescript
+import { Log, createLogger } from '@boyscout/node-logger';
+
+class UserController {
+    private logger = createLogger({ service: 'UserController' });
+    
+    // Usar logger no decorator
+    @Log({ logger: this.logger })
+    async createUser(userData: { name: string; email: string }) {
+        this.logger.info('Creating user via controller', { email: userData.email });
+        return { id: '123', ...userData };
+    }
+    
+    // Usar logger manualmente
+    async getUser(id: string) {
+        this.logger.info('Getting user', { userId: id });
+        return { id, name: 'John Doe' };
     }
 }
 ```

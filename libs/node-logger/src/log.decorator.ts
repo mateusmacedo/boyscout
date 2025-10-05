@@ -1,6 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import { getCid } from './context.js';
-import { createPinoSink } from './pino-sink.js';
+import { createLogger } from './logger/logger.factory.js';
 import { createRedactor } from './redact.js';
 import type { LogEntry, LogOptions } from './types.js';
 
@@ -22,14 +22,13 @@ const getSecureRandom = (): number => {
 
 const defaultRedactor = createRedactor();
 
-// Create default Pino sink with sensible defaults
-const defaultSink = createPinoSink({
+// Create default logger with sensible defaults
+const defaultLogger = createLogger({
   service: process.env.SERVICE_NAME || 'node-logger',
   env: process.env.NODE_ENV || 'development',
   version: process.env.SERVICE_VERSION || '1.0.0',
-  enableBackpressure: true,
-  bufferSize: 1000,
-  flushInterval: 5000,
+  redact: defaultRedactor,
+  getCorrelationId: getCid,
 });
 
 /**
@@ -82,9 +81,13 @@ export function Log(opts: LogOptions = {}) {
     includeResult = false,
     sampleRate = 1,
     redact = defaultRedactor,
-    sink = defaultSink,
+    sink,
     getCorrelationId = getCid,
+    logger,
   } = opts;
+
+  // Use logger if provided, otherwise fallback to sink or default logger
+  const finalLogger = logger || (sink ? null : defaultLogger);
 
   // Universal decorator that works with both general applications and NestJS
   return (
@@ -127,6 +130,29 @@ export function Log(opts: LogOptions = {}) {
             } as Omit<LogEntry, 'outcome'>;
           };
 
+          // Helper function to log using either logger or sink
+          const logEntry = (entry: LogEntry) => {
+            if (finalLogger) {
+              // Use the new logger interface
+              const message = `${className}.${methodName} ${entry.outcome} in ${entry.durationMs.toFixed(1)}ms`;
+              const meta: any = {
+                scope: entry.scope,
+                outcome: entry.outcome,
+                durationMs: entry.durationMs,
+                correlationId: entry.correlationId,
+              };
+
+              if (entry.args) meta.args = entry.args;
+              if (entry.result) meta.result = entry.result;
+              if (entry.error) meta.error = entry.error;
+
+              finalLogger[level](message, meta);
+            } else if (sink) {
+              // Fallback to the old sink interface
+              sink(entry);
+            }
+          };
+
           try {
             const ret = original.apply(this, args);
 
@@ -140,7 +166,7 @@ export function Log(opts: LogOptions = {}) {
                     ...(includeArgs && { args: redact(args) as unknown[] }),
                     ...(includeResult && { result: redact(value) }),
                   };
-                  sink(entry);
+                  logEntry(entry);
                   return value;
                 })
                 .catch((err) => {
@@ -157,7 +183,7 @@ export function Log(opts: LogOptions = {}) {
                       }),
                     },
                   };
-                  sink(entry);
+                  logEntry(entry);
                   throw err;
                 });
             }
@@ -169,7 +195,7 @@ export function Log(opts: LogOptions = {}) {
               ...(includeArgs && { args: redact(args) as unknown[] }),
               ...(includeResult && { result: redact(ret) }),
             };
-            sink(entry);
+            logEntry(entry);
             return ret;
           } catch (err: unknown) {
             const endTime = performance.now();
@@ -183,7 +209,7 @@ export function Log(opts: LogOptions = {}) {
                 ...((err as Error)?.stack && { stack: (err as Error).stack }),
               },
             };
-            sink(entry);
+            logEntry(entry);
             throw err;
           }
         },

@@ -20,4 +20,6 @@ export interface LogOptions {
   redact?: (argsOrResult: unknown) => unknown;
   sink?: (entry: LogEntry) => void;
   getCorrelationId?: () => string | undefined;
+  // New logger option for better abstraction
+  logger?: import('./logger/logger.interface.js').Logger;
 }

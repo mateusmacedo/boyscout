@@ -1,6 +1,21 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.2.4/schema.json",
   "extends": ["./libs/biome/biome.json"],
+  "files": {
+    "includes": [
+      "**",
+      "!**/examples",
+      "!**/docs",
+      "!**/temp",
+      "!**/tmp",
+      "!**/temporary",
+      "!**/demos",
+      "!**/samples",
+      "!**/playground",
+      "!**/test-data",
+      "!**/fixtures"
+    ]
+  },
   "linter": {
     "enabled": true,
     "rules": {
